@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #111827;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fixed container for Three.js Canvas */
+#canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Content layers above the Canvas */
+.content-layer {
+  position: relative;
+  z-index: 10;
+}
+
+/* Hero needs full viewport — applied directly with min-h-[100vh] in JSX */
+.scroll-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Organic thin hairline separators */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.07), transparent);
+}
+
+/* Hide scrollbar for day tabs */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Ensure touch targets are thumb-friendly on mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+  }
+}

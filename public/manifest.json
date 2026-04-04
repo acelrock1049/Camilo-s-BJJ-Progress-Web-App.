@@ -1,0 +1,40 @@
+{
+  "name": "Camilo's BJJ — Brazilian Jiu-Jitsu Docklands",
+  "short_name": "Camilo's BJJ",
+  "description": "Master the mat. Empower your life. Brazilian Jiu-Jitsu in Docklands, Melbourne.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/sticker.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/sticker.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "fitness", "health"],
+  "lang": "en-AU",
+  "shortcuts": [
+    {
+      "name": "Book Free Trial",
+      "short_name": "Book",
+      "url": "https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce",
+      "icons": [{ "src": "/sticker.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Message on Instagram",
+      "short_name": "Instagram",
+      "url": "https://www.instagram.com/camilosbjj/",
+      "icons": [{ "src": "/sticker.png", "sizes": "96x96" }]
+    }
+  ]
+}
