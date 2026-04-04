@@ -11,7 +11,7 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fixed container for Three.js Canvas */
+/* Fixed container for background SVG */
 #canvas-container {
   position: fixed;
   top: 0;
@@ -21,6 +21,7 @@ body, html {
   z-index: 0;
   pointer-events: none;
 }
+
 
 /* Content layers above the Canvas */
 .content-layer {

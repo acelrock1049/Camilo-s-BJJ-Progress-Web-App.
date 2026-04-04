@@ -1,95 +1,243 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
+import { Brain, Menu, X } from 'lucide-react';
 import './index.css';
 import camiloImg from './assets/camilo.jpg';
 import { SurveyModal } from './components/SurveyModal';
+import { SpiralExperience } from './components/SpiralExperience';
 import { ScrollPopup, ExitIntentPopup } from './components/LeadCapturePopup';
 import { BookSection } from './components/BookSection';
 import { FoundationSection } from './components/FoundationSection';
 import { FooterOld } from './components/FooterOld';
+import { AnimatedHero } from './components/AnimatedHero';
 
 const BeltMandala = () => {
     return (
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2400px] flex items-center justify-center z-0 overflow-hidden pointer-events-none opacity-50 mix-blend-screen">
-            <style>
-                {`
-                    @keyframes sunExpand {
-                        0% { transform: scale(0.1) rotate(0deg); opacity: 0; }
-                        30% { transform: scale(1.2) rotate(45deg); opacity: 0.8; }
-                        100% { transform: scale(1) rotate(360deg); opacity: 0.5; }
-                    }
-                    @keyframes infiniteSpin {
-                        from { transform: rotate(0deg) scale(1); }
-                        to { transform: rotate(360deg) scale(1); }
-                    }
-                    @keyframes infiniteSpinReverse {
-                        from { transform: rotate(360deg) scale(1); }
-                        to { transform: rotate(0deg) scale(1); }
-                    }
-                    .mandala-core {
-                        animation: sunExpand 5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    }
-                    .mandala-layer-1 { animation: infiniteSpin 50s linear infinite; }
-                    .mandala-layer-2 { animation: infiniteSpinReverse 60s linear infinite; }
-                    .mandala-layer-3 { animation: infiniteSpin 70s linear infinite; }
-                    .mandala-layer-4 { animation: infiniteSpinReverse 80s linear infinite; }
-                    .mandala-layer-5 { animation: infiniteSpin 90s linear infinite; }
-                `}
-            </style>
-            <div className="mandala-core absolute w-[2400px] h-[2400px] rounded-full flex items-center justify-center">
-                {/* Layer 1: White Belt (Outer) */}
-                <div className="absolute w-[2400px] h-[2400px] mandala-layer-1">
-                    <svg viewBox="0 0 100 100" className="w-full h-full opacity-30">
-                        {Array.from({length: 24}).map((_, i) => (
-                            <line key={i} x1="50" y1="0" x2="50" y2="100" stroke="#ffffff" strokeWidth="0.05" transform={`rotate(${i * 15} 50 50)`} />
-                        ))}
-                        <circle cx="50" cy="50" r="48" fill="none" stroke="#ffffff" strokeWidth="0.05" strokeDasharray="0.5 1"/>
-                    </svg>
-                </div>
-                {/* Layer 2: Blue Belt */}
-                <div className="absolute w-[1950px] h-[1950px] mandala-layer-2">
-                    <svg viewBox="0 0 100 100" className="w-full h-full opacity-40">
-                        {Array.from({length: 12}).map((_, i) => (
-                            <ellipse key={i} cx="50" cy="50" rx="48" ry="15" fill="none" stroke="#3b82f6" strokeWidth="0.1" transform={`rotate(${i * 30} 50 50)`} />
-                        ))}
-                    </svg>
-                </div>
-                {/* Layer 3: Purple Belt */}
-                <div className="absolute w-[1500px] h-[1500px] mandala-layer-3">
-                    <svg viewBox="0 0 100 100" className="w-full h-full opacity-50">
-                        {Array.from({length: 16}).map((_, i) => (
-                            <polygon key={i} points="50,2 98,50 50,98 2,50" fill="none" stroke="#9333ea" strokeWidth="0.1" transform={`rotate(${i * 22.5} 50 50)`} />
-                        ))}
-                    </svg>
-                </div>
-                {/* Layer 4: Brown Belt */}
-                <div className="absolute w-[1050px] h-[1050px] mandala-layer-4">
-                    <svg viewBox="0 0 100 100" className="w-full h-full opacity-70">
-                        {Array.from({length: 8}).map((_, i) => (
-                            <rect key={i} x="10" y="10" width="80" height="80" fill="none" stroke="#92400e" strokeWidth="0.15" transform={`rotate(${i * 45} 50 50)`} />
-                        ))}
-                        <circle cx="50" cy="50" r="35" fill="none" stroke="#92400e" strokeWidth="0.15" strokeDasharray="1 2"/>
-                    </svg>
-                </div>
-                {/* Layer 5: Black & Red Belt (Center Core) */}
-                <div className="absolute w-[600px] h-[600px] mandala-layer-5">
-                    <svg viewBox="0 0 100 100" className="w-full h-full opacity-90">
-                        {Array.from({length: 36}).map((_, i) => (
-                            <line key={i} x1="50" y1="20" x2="50" y2="80" stroke="#1f2937" strokeWidth="0.4" transform={`rotate(${i * 10} 50 50)`} />
-                        ))}
-                        {Array.from({length: 12}).map((_, i) => (
-                            <circle key={`red-${i}`} cx="50" cy="15" r="2" fill="#ef4444" transform={`rotate(${i * 30} 50 50)`} />
-                        ))}
-                        <circle cx="50" cy="50" r="10" fill="#dc2626" className="animate-pulse" />
-                    </svg>
-                </div>
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1800px] flex items-center justify-center z-0 pointer-events-none opacity-30">
+            <style>{`
+                @keyframes slowSpin  { from { transform: rotate(0deg);   } to { transform: rotate(360deg);  } }
+                @keyframes slowSpinR { from { transform: rotate(360deg); } to { transform: rotate(0deg);    } }
+                .ml-1 { animation: slowSpin  90s linear infinite; }
+                .ml-2 { animation: slowSpinR 120s linear infinite; }
+                .ml-3 { animation: slowSpin  150s linear infinite; }
+            `}</style>
+
+            {/* Layer 1 — outer ellipse ring, blue */}
+            <div className="absolute w-[1600px] h-[1600px] ml-1">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <ellipse cx="50" cy="50" rx="48" ry="18" fill="none" stroke="#3b82f6" strokeWidth="0.12" opacity="0.6"/>
+                    <ellipse cx="50" cy="50" rx="48" ry="18" fill="none" stroke="#3b82f6" strokeWidth="0.08" opacity="0.3" transform="rotate(60 50 50)"/>
+                    <ellipse cx="50" cy="50" rx="48" ry="18" fill="none" stroke="#3b82f6" strokeWidth="0.08" opacity="0.3" transform="rotate(120 50 50)"/>
+                </svg>
             </div>
-            {/* Ambient Radial Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[2400px] h-[2400px] bg-gradient-to-tr from-yellow-500/10 via-red-500/5 to-blue-500/10 rounded-full blur-3xl -z-10 mix-blend-screen pointer-events-none"></div>
+
+            {/* Layer 2 — mid ellipse ring, orange */}
+            <div className="absolute w-[1100px] h-[1100px] ml-2">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <ellipse cx="50" cy="50" rx="46" ry="14" fill="none" stroke="#f97316" strokeWidth="0.14" opacity="0.5"/>
+                    <ellipse cx="50" cy="50" rx="46" ry="14" fill="none" stroke="#f97316" strokeWidth="0.09" opacity="0.25" transform="rotate(90 50 50)"/>
+                </svg>
+            </div>
+
+            {/* Layer 3 — inner circle, purple/black */}
+            <div className="absolute w-[650px] h-[650px] ml-3">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="#9333ea" strokeWidth="0.18" strokeDasharray="4 6" opacity="0.5"/>
+                    <circle cx="50" cy="50" r="28" fill="none" stroke="#1f2937" strokeWidth="0.2" opacity="0.4"/>
+                </svg>
+            </div>
         </div>
     );
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WHO WE HELP CARDS
+// Glassmorphism aesthetic + Foundation-style Framer Motion interactions.
+// Animation triggers on every viewport entry (once: false) — works scroll up/down.
+// Active state controlled by React (not CSS :hover) for reliable touch support.
+// ─────────────────────────────────────────────────────────────────────────────
+const WHO_CARDS = [
+    {
+        title: "WOMEN'S TRAINING",
+        short: 'Empowerment, real self-defense & community.',
+        long: 'We know that taking the first step in martial arts can be intimidating. Discover the warrior within in a completely ego-free space with Paula and Camilo.',
+        hex: '#ec4899',
+        accentFrom: '#ec4899',
+        accentTo: '#f43f5e',
+        glowColor: 'rgba(236,72,153,0.3)',
+        borderActive: 'border-pink-400/50',
+        img: '/paula-camilo.jpeg',
+        action: 'womens' as const,
+    },
+    {
+        title: 'SELF-IMPROVEMENT SEEKERS',
+        short: 'Technique over brute force — the "Smart System".',
+        long: "You've read the books, you do the habits, but you need a physical crucible. Our curriculum is built on evolution: a progressive framework where every belt represents a new level of physical mastery and psychological growth.",
+        hex: '#eab308',
+        accentFrom: '#eab308',
+        accentTo: '#06b6d4',
+        glowColor: 'rgba(234,179,8,0.3)',
+        borderActive: 'border-yellow-400/50',
+        img: 'https://images.unsplash.com/photo-1555626906-fcf10d6851b4?auto=format&fit=crop&q=80&w=800',
+        action: 'expand' as const,
+    },
+    {
+        title: 'BJJ KIDS',
+        short: 'Building resilient leaders on the mats.',
+        long: "Forget traditional \"fight factories\". At Camilo's BJJ, children don't just learn technical self-defense; they learn vital skills for the real world.",
+        hex: '#16a34a',
+        accentFrom: '#16a34a',
+        accentTo: '#22c55e',
+        glowColor: 'rgba(22,163,74,0.3)',
+        borderActive: 'border-green-500/50',
+        img: '/src/assets/bjj-kids-banner.png',
+        action: 'kids' as const,
+    },
+] as const;
+
+interface WhoWeHelpCardsProps {
+    expandedCard: number | null;
+    setExpandedCard: (v: number | null) => void;
+    onKidsModal: () => void;
+    onWomensModal: () => void;
+    onSpiralOpen: () => void;
+}
+
+function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensModal, onSpiralOpen }: WhoWeHelpCardsProps) {
+    // Active card tracks hover (desktop) or tap (mobile)
+    const [activeCard, setActiveCard] = useState<number | null>(null);
+
+    const handleClick = (idx: number) => {
+        const card = WHO_CARDS[idx];
+        if (card.action === 'kids')    { onKidsModal();   return; }
+        if (card.action === 'womens')  { onWomensModal(); return; }
+        // expand
+        setExpandedCard(expandedCard === idx ? null : idx);
+        setActiveCard(idx);
+    };
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+            {WHO_CARDS.map((card, idx) => {
+                const isExpanded = expandedCard === idx && card.action === 'expand';
+                const isActive   = activeCard === idx || isExpanded;
+
+                return (
+                    <motion.div
+                        key={idx}
+                        layoutId={card.action === 'kids' ? 'bjj-kids-card' : card.action === 'womens' ? 'womens-training-card' : undefined}
+                        // Viewport entry animation — once:false re-fires on scroll up too
+                        initial={{ opacity: 0, y: 32 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: false, margin: '-60px' }}
+                        transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                        // Lift on active
+                        animate={{ y: isActive ? -8 : 0 }}
+                        className={`
+                            relative overflow-hidden rounded-3xl border cursor-pointer select-none
+                            bg-black/40 backdrop-blur-xl
+                            transition-[border-color,box-shadow] duration-300
+                            ${isActive ? card.borderActive : 'border-white/10'}
+                        `}
+                        style={{
+                            boxShadow: isActive
+                                ? `0 24px 64px ${card.glowColor}, 0 0 0 1px ${card.glowColor}`
+                                : '0 8px 32px rgba(0,0,0,0.25)',
+                        }}
+                        onMouseEnter={() => setActiveCard(idx)}
+                        onMouseLeave={() => setActiveCard(null)}
+                        onClick={() => handleClick(idx)}
+                        whileTap={{ scale: 0.985 }}
+                    >
+                        {/* Background image — grayscale → color on active */}
+                        <div
+                            className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+                            style={{
+                                backgroundImage: `url('${card.img}')`,
+                                opacity: isActive ? 0.55 : 0.25,
+                                filter: isActive ? 'grayscale(0%)' : 'grayscale(80%)',
+                                mixBlendMode: 'luminosity',
+                            }}
+                        />
+
+                        {/* Color glow gradient — fades in on active */}
+                        <div
+                            className="absolute inset-0 pointer-events-none transition-opacity duration-400"
+                            style={{
+                                background: `linear-gradient(to top, ${card.hex}cc, ${card.hex}40 55%, transparent 85%)`,
+                                opacity: isActive ? 1 : 0,
+                            }}
+                        />
+
+                        {/* Accent top bar */}
+                        <div
+                            className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                            style={{
+                                background: `linear-gradient(to right, ${card.accentFrom}, ${card.accentTo})`,
+                                opacity: isActive ? 1 : 0,
+                            }}
+                        />
+
+                        {/* Glassmorphism inner content */}
+                        <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[420px] md:min-h-[500px]">
+                            <motion.div
+                                animate={{ y: isExpanded ? 0 : 8 }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                className="mt-auto"
+                            >
+                                <h3 className="text-2xl lg:text-3xl font-black tracking-tight text-white uppercase mb-3 leading-none drop-shadow-md">
+                                    {card.title}
+                                </h3>
+                                <p className={`text-white/85 font-light text-sm leading-relaxed drop-shadow-sm transition-all duration-400 ${isExpanded ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 mb-0'}`}>
+                                    {card.short}
+                                </p>
+
+                                {/* Expanded copy — smooth height transition */}
+                                <motion.div
+                                    initial={false}
+                                    animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
+                                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="w-8 h-0.5 bg-white/40 mb-4 mt-1" />
+                                    <p className="text-white/90 font-light leading-relaxed italic text-sm sm:text-base mb-5">
+                                        "{card.long}"
+                                    </p>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (card.action === 'expand') {
+                                                onSpiralOpen();
+                                            }
+                                        }}
+                                        className="px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                    >
+                                        {card.action === 'expand' ? 'Discover It' : 'Join this track'}
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                        </svg>
+                                    </button>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+
+                        {/* Tap indicator — always visible on mobile, fades on active */}
+                        <motion.div
+                            className="absolute top-5 right-5"
+                            animate={{ opacity: isActive ? 0 : 0.5 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </motion.div>
+                    </motion.div>
+                );
+            })}
+        </div>
+    );
+}
 
 function App() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -98,6 +246,8 @@ function App() {
   const [showWomensModal, setShowWomensModal] = useState(false);
   const [showTimetableModal, setShowTimetableModal] = useState(false);
   const [showSurveyModal, setShowSurveyModal] = useState(false);
+  const [showSpiralExperience, setShowSpiralExperience] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // ── Scroll-aware header / logo ──
   const { scrollY } = useScroll();
@@ -105,8 +255,8 @@ function App() {
   const [logoOffset, setLogoOffset] = useState(0);
 
   const calcLogoOffset = useCallback(() => {
-    // Logo ~72px wide, header padding 32px — move to center of viewport
-    setLogoOffset(window.innerWidth / 2 - 68);
+    // X distance to move logo from its natural left position to horizontal center
+    setLogoOffset(window.innerWidth / 2 - 72);
   }, []);
 
   useEffect(() => {
@@ -119,26 +269,26 @@ function App() {
     return scrollY.on('change', v => setScrolled(v > 60));
   }, [scrollY]);
 
-  // Spring values for smooth logo animation
-  const logoXRaw = useTransform(scrollY, [0, 80], [logoOffset, 0]);
-  const logoX = useSpring(logoXRaw, { stiffness: 280, damping: 28 });
-  const logoScaleRaw = useTransform(scrollY, [0, 80], [1.5, 1]);
-  const logoScale = useSpring(logoScaleRaw, { stiffness: 280, damping: 28 });
-  const headerBgOpacity = useTransform(scrollY, [0, 80], [0, 1]);
-  const navOpacity = useTransform(scrollY, [30, 80], [0, 1]);
+  // Logo: centered + 150% at scroll=0, springs to top-left at 100% on scroll
+  const logoXRaw    = useTransform(scrollY, [0, 100], [logoOffset, 0]);
+  const logoX       = useSpring(logoXRaw,    { stiffness: 260, damping: 30 });
+  const logoScaleRaw = useTransform(scrollY, [0, 100], [1.5, 1]);
+  const logoScale   = useSpring(logoScaleRaw, { stiffness: 260, damping: 30 });
+
+  const headerBgOpacity = useTransform(scrollY, [0, 90], [0, 1]);
+  const navOpacity = useTransform(scrollY, [40, 90], [0, 1]);
 
   useEffect(() => {
-    if (showKidsModal || showWomensModal || showTimetableModal || showSurveyModal) {
+    if (showKidsModal || showWomensModal || showTimetableModal || showSurveyModal || showSpiralExperience) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [showKidsModal, showWomensModal, showTimetableModal, showSurveyModal]);
+  }, [showKidsModal, showWomensModal, showTimetableModal, showSurveyModal, showSpiralExperience]);
 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // --- THREE.JS SETUP ---
     const isMobile = window.innerWidth <= 768;
 
     const scene = new THREE.Scene();
@@ -152,180 +302,132 @@ function App() {
     renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
     mountRef.current.appendChild(renderer.domElement);
 
-    // --- DNA CREATION ---
     const dnaGroup = new THREE.Group();
-    if (!isMobile) {
-        dnaGroup.position.x = 4;
-    }
+    if (!isMobile) dnaGroup.position.x = 4;
 
     const numPoints = isMobile ? 120 : 250;
     const height = 30;
     const radius = 2.5;
     const turns = isMobile ? 3 : 5;
 
-    const points1 = [];
-    const points2 = [];
-    const colors1 = [];
-    const colors2 = [];
-    const pairPoints = [];
-    const pairColors = [];
+    const points1: THREE.Vector3[] = [];
+    const points2: THREE.Vector3[] = [];
+    const colors1: number[] = [];
+    const colors2: number[] = [];
+    const pairPoints: THREE.Vector3[] = [];
+    const pairColors: number[] = [];
 
-    // BJJ Colors (Bottom: White -> Top: Black)
     const bjjColors = [
-        new THREE.Color(0xffffff), // White
-        new THREE.Color(0x2563eb), // Blue
-        new THREE.Color(0x9333ea), // Purple
-        new THREE.Color(0x78350f), // Brown
-        new THREE.Color(0x222222)  // Black (Very dark gray)
+      new THREE.Color(0xffffff),
+      new THREE.Color(0x2563eb),
+      new THREE.Color(0x9333ea),
+      new THREE.Color(0x78350f),
+      new THREE.Color(0x222222),
     ];
-
-    // Spiral Dynamics Colors (Bottom: Beige -> Top: Turquoise)
     const sdColors = [
-        new THREE.Color(0xf5f5dc), // Beige (1)
-        new THREE.Color(0x800080), // Purple (2)
-        new THREE.Color(0xff0000), // Red (3)
-        new THREE.Color(0x0000ff), // Blue (4)
-        new THREE.Color(0xffa500), // Orange (5)
-        new THREE.Color(0x008000), // Green (6)
-        new THREE.Color(0xffff00), // Yellow (7)
-        new THREE.Color(0x40e0d0)  // Turquoise (8)
+      new THREE.Color(0xf5f5dc),
+      new THREE.Color(0x800080),
+      new THREE.Color(0xff0000),
+      new THREE.Color(0x0000ff),
+      new THREE.Color(0xffa500),
+      new THREE.Color(0x008000),
+      new THREE.Color(0xffff00),
+      new THREE.Color(0x40e0d0),
     ];
 
-    function getColorAtPosition(colorsArray: THREE.Color[], t: number) {
-        const scaledT = t * (colorsArray.length - 1);
-        const index = Math.floor(scaledT);
-        
-        if (index >= colorsArray.length - 1) return colorsArray[colorsArray.length - 1].clone();
-        
-        const fraction = scaledT - index;
-        const c1 = colorsArray[index];
-        const c2 = colorsArray[index + 1];
-        
-        return c1.clone().lerp(c2, fraction);
+    function getColorAtPosition(arr: THREE.Color[], t: number) {
+      const s = t * (arr.length - 1);
+      const i = Math.floor(s);
+      if (i >= arr.length - 1) return arr[arr.length - 1].clone();
+      return arr[i].clone().lerp(arr[i + 1], s - i);
     }
 
     for (let i = 0; i <= numPoints; i++) {
-        const t = i / numPoints;
-        const y = (t - 0.5) * height;
-        const angle = t * Math.PI * 2 * turns;
+      const t = i / numPoints;
+      const y = (t - 0.5) * height;
+      const angle = t * Math.PI * 2 * turns;
 
-        // Helix 1 (BJJ)
-        const x1 = Math.cos(angle) * radius;
-        const z1 = Math.sin(angle) * radius;
-        points1.push(new THREE.Vector3(x1, y, z1));
+      const x1 = Math.cos(angle) * radius;
+      const z1 = Math.sin(angle) * radius;
+      points1.push(new THREE.Vector3(x1, y, z1));
 
-        // Helix 2 (Spiral Dynamics) - Rotated 180 degrees
-        const x2 = Math.cos(angle + Math.PI) * radius;
-        const z2 = Math.sin(angle + Math.PI) * radius;
-        points2.push(new THREE.Vector3(x2, y, z2));
+      const x2 = Math.cos(angle + Math.PI) * radius;
+      const z2 = Math.sin(angle + Math.PI) * radius;
+      points2.push(new THREE.Vector3(x2, y, z2));
 
-        const colorBJJ = getColorAtPosition(bjjColors, t);
-        const colorSD = getColorAtPosition(sdColors, t);
+      const cBJJ = getColorAtPosition(bjjColors, t);
+      const cSD  = getColorAtPosition(sdColors, t);
+      colors1.push(cBJJ.r, cBJJ.g, cBJJ.b);
+      colors2.push(cSD.r,  cSD.g,  cSD.b);
 
-        colors1.push(colorBJJ.r, colorBJJ.g, colorBJJ.b);
-        colors2.push(colorSD.r, colorSD.g, colorSD.b);
-
-        if (i % 4 === 0) {
-            pairPoints.push(new THREE.Vector3(x1, y, z1));
-            pairPoints.push(new THREE.Vector3(x2, y, z2));
-            
-            const blendColor = colorBJJ.clone().lerp(colorSD, 0.5);
-            pairColors.push(blendColor.r, blendColor.g, blendColor.b);
-            pairColors.push(blendColor.r, blendColor.g, blendColor.b);
-        }
+      if (i % 4 === 0) {
+        pairPoints.push(new THREE.Vector3(x1, y, z1));
+        pairPoints.push(new THREE.Vector3(x2, y, z2));
+        const blend = cBJJ.clone().lerp(cSD, 0.5);
+        pairColors.push(blend.r, blend.g, blend.b, blend.r, blend.g, blend.b);
+      }
     }
 
-    const lineMaterialSettings = { vertexColors: true, transparent: true, opacity: 1.0, linewidth: 3 };
+    const mat = { vertexColors: true, transparent: true, opacity: 1.0, linewidth: 3 };
 
     const geo1 = new THREE.BufferGeometry().setFromPoints(points1);
     geo1.setAttribute('color', new THREE.Float32BufferAttribute(colors1, 3));
-    const line1 = new THREE.Line(geo1, new THREE.LineBasicMaterial(lineMaterialSettings));
-    dnaGroup.add(line1);
+    dnaGroup.add(new THREE.Line(geo1, new THREE.LineBasicMaterial(mat)));
 
     const geo2 = new THREE.BufferGeometry().setFromPoints(points2);
     geo2.setAttribute('color', new THREE.Float32BufferAttribute(colors2, 3));
-    const line2 = new THREE.Line(geo2, new THREE.LineBasicMaterial(lineMaterialSettings));
-    dnaGroup.add(line2);
+    dnaGroup.add(new THREE.Line(geo2, new THREE.LineBasicMaterial(mat)));
 
     const pairGeo = new THREE.BufferGeometry().setFromPoints(pairPoints);
     pairGeo.setAttribute('color', new THREE.Float32BufferAttribute(pairColors, 3));
-    const pairLines = new THREE.LineSegments(
-        pairGeo, 
-        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.25 })
-    );
-    dnaGroup.add(pairLines);
+    dnaGroup.add(new THREE.LineSegments(pairGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.25 })));
 
     scene.add(dnaGroup);
 
-    // --- ANIMATION & INTERACTION ---
-    let currentScrollY = 0;
     let targetRotation = 0;
     let targetPositionY = 0;
-
     let animationFrameId: number;
-    const targetFPS = isMobile ? 30 : 60;
-    const fpsInterval = 1000 / targetFPS;
+    const fpsInterval = 1000 / (isMobile ? 30 : 60);
     let lastFrameTime = 0;
 
     const handleScroll = () => {
-        currentScrollY = window.scrollY;
-        targetRotation = currentScrollY * 0.003;
-        targetPositionY = currentScrollY * 0.005;
+      targetRotation  = window.scrollY * 0.003;
+      targetPositionY = window.scrollY * 0.005;
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     const animate = (now: number) => {
-        animationFrameId = requestAnimationFrame(animate);
-        const elapsed = now - lastFrameTime;
-        if (elapsed < fpsInterval) return;
-        lastFrameTime = now - (elapsed % fpsInterval);
-
-        dnaGroup.rotation.y += 0.002;
-        dnaGroup.rotation.y += (targetRotation - dnaGroup.rotation.y) * 0.08;
-        dnaGroup.position.y += (targetPositionY - dnaGroup.position.y) * 0.08;
-
-        renderer.render(scene, camera);
+      animationFrameId = requestAnimationFrame(animate);
+      if (now - lastFrameTime < fpsInterval) return;
+      lastFrameTime = now;
+      dnaGroup.rotation.y += 0.002;
+      dnaGroup.rotation.y += (targetRotation - dnaGroup.rotation.y) * 0.08;
+      dnaGroup.position.y += (targetPositionY - dnaGroup.position.y) * 0.08;
+      renderer.render(scene, camera);
     };
-
     animate(0);
 
     const handleResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        
-        if(window.innerWidth <= 768) {
-            dnaGroup.position.x = 0;
-        } else {
-            dnaGroup.position.x = 4;
-        }
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      dnaGroup.position.x = window.innerWidth <= 768 ? 0 : 4;
     };
-
     window.addEventListener('resize', handleResize);
 
-    // Cleanup
     const currentMount = mountRef.current;
-    
     return () => {
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('resize', handleResize);
-        cancelAnimationFrame(animationFrameId);
-        if (currentMount) {
-            currentMount.removeChild(renderer.domElement);
-        }
-        
-        // Dispose ThreeJS objects to prevent memory leaks
-        geo1.dispose();
-        geo2.dispose();
-        pairGeo.dispose();
-        renderer.dispose();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+      if (currentMount) currentMount.removeChild(renderer.domElement);
+      geo1.dispose(); geo2.dispose(); pairGeo.dispose(); renderer.dispose();
     };
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
 
   return (
     <div className="antialiased">
-      {/* 3D Container */}
+      {/* DNA helix background */}
       <div id="canvas-container" ref={mountRef}></div>
 
       {/* Web Page Content */}
@@ -340,173 +442,131 @@ function App() {
                 style={{ opacity: headerBgOpacity }}
             />
 
-            {/* Logo — springs from center to top-left */}
+            {/* Logo — springs from center (150%) to top-left on scroll */}
             <motion.img
                 src="/sticker.png"
                 alt="Camilo's BJJ Logo"
-                className="h-14 w-auto object-contain drop-shadow-md cursor-pointer select-none"
+                className="h-16 w-auto object-contain drop-shadow-2xl cursor-pointer select-none shrink-0"
                 style={{ x: logoX, scale: logoScale }}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             />
 
             {/* Nav — fades in after scroll */}
             <motion.nav
-                className="hidden md:flex gap-8 text-sm font-bold tracking-widest uppercase text-gray-900 pointer-events-none"
+                className="hidden md:flex items-center gap-6 text-sm font-bold tracking-widest uppercase text-gray-900"
                 style={{ opacity: navOpacity, pointerEvents: scrolled ? 'auto' : 'none' }}
             >
+                <a href="#method" className="hover:text-orange-500 transition-colors">Method</a>
                 <button
                     onClick={() => setShowTimetableModal(true)}
                     className="hover:text-orange-500 transition-colors"
                 >
                     Timetable
                 </button>
-                <a href="#method" className="hover:text-orange-500 transition-colors">Method</a>
+                <a href="#pricing" className="hover:text-orange-500 transition-colors">Pricing</a>
+
+                {/* Instagram icon */}
                 <a
                     href="https://www.instagram.com/camilosbjj/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 hover:text-pink-500 transition-colors"
+                    className="hover:text-pink-500 transition-colors"
+                    title="Instagram"
                 >
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                     </svg>
-                    Instagram
                 </a>
+
+                {/* Brain icon → BJJ mindset survey */}
+                <button
+                    onClick={() => setShowSurveyModal(true)}
+                    className="hover:text-yellow-500 transition-colors"
+                    title="Find your mindset for BJJ"
+                >
+                    <Brain className="w-4 h-4" />
+                </button>
             </motion.nav>
 
-            {/* Mobile: Instagram icon button (always visible) */}
-            <motion.a
-                href="https://www.instagram.com/camilosbjj/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="md:hidden p-2.5 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-white shadow-md"
-                style={{ opacity: headerBgOpacity }}
-                whileTap={{ scale: 0.92 }}
-            >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-            </motion.a>
+            {/* Mobile: icon buttons + hamburger */}
+            <div className="md:hidden flex items-center gap-2">
+                <motion.a
+                    href="https://www.instagram.com/camilosbjj/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-white shadow-md"
+                    style={{ opacity: headerBgOpacity }}
+                    whileTap={{ scale: 0.92 }}
+                >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                </motion.a>
+                <motion.button
+                    onClick={() => setShowSurveyModal(true)}
+                    className="p-2 rounded-full bg-yellow-400 text-neutral-900 shadow-md"
+                    style={{ opacity: headerBgOpacity }}
+                    whileTap={{ scale: 0.92 }}
+                    title="Find your mindset for BJJ"
+                >
+                    <Brain className="w-4 h-4" />
+                </motion.button>
+                {/* Hamburger — always visible, toggles nav dropdown */}
+                <motion.button
+                    onClick={() => setShowMobileMenu(v => !v)}
+                    className="p-2 rounded-full bg-white/70 backdrop-blur-md border border-gray-200/60 text-gray-800 shadow-sm"
+                    whileTap={{ scale: 0.92 }}
+                    aria-label="Toggle navigation"
+                >
+                    {showMobileMenu ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                </motion.button>
+            </div>
+
+            {/* Mobile nav dropdown — slides down below header */}
+            <AnimatePresence>
+                {showMobileMenu && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="md:hidden absolute top-full left-0 w-full bg-white/85 backdrop-blur-xl border-b border-gray-200/40 shadow-lg z-40 px-8 py-6 flex flex-col gap-5"
+                    >
+                        <a
+                            href="#method"
+                            onClick={() => setShowMobileMenu(false)}
+                            className="text-sm font-bold tracking-widest uppercase text-gray-900 hover:text-orange-500 transition-colors"
+                        >
+                            Method
+                        </a>
+                        <button
+                            onClick={() => { setShowTimetableModal(true); setShowMobileMenu(false); }}
+                            className="text-left text-sm font-bold tracking-widest uppercase text-gray-900 hover:text-orange-500 transition-colors"
+                        >
+                            Timetable
+                        </button>
+                        <a
+                            href="#pricing"
+                            onClick={() => setShowMobileMenu(false)}
+                            className="text-sm font-bold tracking-widest uppercase text-gray-900 hover:text-orange-500 transition-colors"
+                        >
+                            Pricing
+                        </a>
+                        <hr className="border-gray-200/60" />
+                        <button
+                            onClick={() => { setShowSurveyModal(true); setShowMobileMenu(false); }}
+                            className="flex items-center gap-3 text-sm font-bold tracking-widest uppercase text-yellow-600 hover:text-yellow-500 transition-colors"
+                        >
+                            <Brain className="w-4 h-4" />
+                            Find Your Mindset
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
 
-        {/* ── Hero Section — único con min-h viewport ── */}
-        <section className="scroll-section min-h-[100vh] px-8 md:px-24 pt-40 pb-16 items-center text-center md:items-start md:text-left">
-            <div className="max-w-6xl relative w-full flex flex-col md:flex-row md:items-end gap-10 md:gap-16">
-
-                {/* LEFT — Editorial heading with stagger animation */}
-                <div className="flex-1 min-w-0">
-                    <motion.h1
-                        className="flex flex-col relative z-10 select-none items-center md:items-start w-full"
-                        initial="hidden"
-                        animate="visible"
-                        variants={{
-                            hidden: {},
-                            visible: { transition: { staggerChildren: 0.12 } }
-                        }}
-                    >
-                        <div className="absolute top-[45%] left-[-20vw] w-[150vw] h-[1px] bg-gray-300 z-[-1]" />
-                        <motion.span
-                            className="font-serif italic text-6xl md:text-[7rem] text-black font-normal md:ml-24"
-                            style={{ fontFamily: "'Playfair Display', serif" }}
-                            variants={{
-                                hidden: { opacity: 0, y: 32 },
-                                visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-                            }}
-                        >
-                            Master the mat.
-                        </motion.span>
-                        <motion.span
-                            className="font-sans font-black text-6xl md:text-[8rem] tracking-tighter text-black uppercase leading-[0.85] mt-[-5px] md:mt-[-15px]"
-                            variants={{
-                                hidden: { opacity: 0, y: 32 },
-                                visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-                            }}
-                        >
-                            Empower your life
-                        </motion.span>
-                    </motion.h1>
-                </div>
-
-                {/* RIGHT — Subtitle + CTAs */}
-                <motion.div
-                    initial={{ opacity: 0, y: 28 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col items-center md:items-start gap-6 shrink-0 pb-2"
-                >
-                    {/* Floating subtitle */}
-                    <motion.p
-                        className="font-serif italic text-xl md:text-2xl text-gray-500 font-normal leading-snug"
-                        style={{ fontFamily: "'Playfair Display', serif" }}
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    >
-                        Learn Brazilian Jiu-Jitsu
-                    </motion.p>
-
-                    {/* ── CTA Buttons ── */}
-                    <div className="flex flex-col gap-3 w-full min-w-[260px]">
-
-                        {/* PRIMARY — Instagram, gradient Spiral Dynamics */}
-                        <motion.a
-                            href="https://www.instagram.com/camilosbjj/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group relative inline-flex items-center justify-center gap-3 px-8 py-5 text-white font-bold tracking-widest text-sm uppercase rounded-sm overflow-hidden shadow-[0_8px_24px_rgba(168,85,247,0.35)] whitespace-nowrap"
-                            whileHover={{ scale: 1.03, boxShadow: '0 12px 32px rgba(168,85,247,0.5)' }}
-                            whileTap={{ scale: 0.97 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        >
-                            <span className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400" style={{ backgroundSize: '200% 200%' }} />
-                            <svg className="relative w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                            </svg>
-                            <span className="relative">Follow @camilosbjj</span>
-                            <svg className="relative w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                            </svg>
-                        </motion.a>
-
-                        {/* SECONDARY — Find your BJJ Belt, Spiral Dynamics belt gradient */}
-                        <motion.button
-                            onClick={() => setShowSurveyModal(true)}
-                            className="group relative inline-flex items-center justify-center gap-3 px-8 py-5 text-white font-bold tracking-widest text-sm uppercase rounded-sm overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.2)] whitespace-nowrap"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.97 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                        >
-                            <span className="absolute inset-0 bg-gradient-to-r from-gray-700 via-blue-800 via-purple-800 to-gray-950" />
-                            <span className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500" />
-                            <svg className="relative w-4 h-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            <span className="relative">Find your BJJ Belt</span>
-                        </motion.button>
-
-                        {/* TERTIARY — WhatsApp, subtle */}
-                        <motion.a
-                            href="https://wa.me/61489038711"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 border border-gray-200 bg-white/60 backdrop-blur-sm text-gray-600 font-semibold tracking-wider text-xs uppercase rounded-sm hover:border-green-400 hover:text-green-700 hover:bg-white transition-all duration-300 whitespace-nowrap"
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            Ask on WhatsApp
-                        </motion.a>
-                    </div>
-
-                    {/* Trust micro-copy */}
-                    <p className="text-gray-400 text-[11px] font-bold tracking-[0.18em] uppercase">
-                        🥋 Ego-Free · Zero Lock-in · 21 Gold Medals
-                    </p>
-                </motion.div>
-
-            </div>
-        </section>
+        {/* ── Hero Section ── */}
+        <AnimatedHero onSurveyOpen={() => setShowSurveyModal(true)} />
 
         {/* ── Separator: Hero → Who We Help ── */}
         <div className="section-divider mx-8 md:mx-24" />
@@ -550,114 +610,14 @@ function App() {
                     We know you're searching for real personal change. Whether you spend 10 hours a day in front of a screen, want to empower your team, or wish to instil unbreakable discipline in your kids — we do things differently.
                 </motion.p>
 
-                {/* Interactive Cards (Vidrioso Eléctrico aesthetic) */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
-                    {[
-                        { 
-                            title: 'WOMEN\'S TRAINING', 
-                            short: 'Empowerment, real self-defense & community.',
-                            long: 'We know that taking the first step in martial arts can be intimidating. Discover the warrior within in a completely ego-free space with Paula and Camilo.',
-                            hex: '#ec4899', // Pink (Empowerment)
-                            shadow: 'hover:shadow-[0_0_40px_rgba(236,72,153,0.4)]',
-                            img: '/paula-camilo.jpeg'
-                        },
-                        { 
-                            title: 'SELF-IMPROVEMENT SEEKERS', 
-                            short: 'Technique over brute force — the "Smart System".',
-                            long: "You've read the books, you do the habits, but you need a physical crucible. Our curriculum is built on evolution: a progressive framework where every belt represents a new level of physical mastery and psychological growth.",
-                            hex: '#eab308', // Yellow (System)
-                            shadow: 'hover:shadow-[0_0_40px_rgba(234,179,8,0.4)]',
-                            img: 'https://images.unsplash.com/photo-1555626906-fcf10d6851b4?auto=format&fit=crop&q=80&w=800'
-                        },
-                        { 
-                            title: 'BJJ KIDS', 
-                            short: 'Building resilient leaders on the mats.',
-                            long: 'Forget traditional "fight factories". At Camilo\'s BJJ, children don\'t just learn technical self-defense; they learn vital skills for the real world.',
-                            hex: '#16a34a', // Green (Community)
-                            shadow: 'hover:shadow-[0_0_40px_rgba(22,163,74,0.4)]',
-                            img: '/src/assets/bjj-kids-banner.png'
-                        }
-                    ].map((card, idx) => {
-                        const isExpanded = expandedCard === idx && idx === 1;
-                        const activeStateClass = isExpanded ? 'grayscale-0 translate-y-[-8px] shadow-[0_20px_60px_rgba(0,0,0,0.8)] ring-1 ring-white/10' : `grayscale hover:grayscale-0 hover:-translate-y-2 ${card.shadow}`;
-                        
-                        return (
-                            <motion.div 
-                                layoutId={idx === 2 ? "bjj-kids-card" : (idx === 0 ? "womens-training-card" : undefined)}
-                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                key={idx}
-                                onClick={() => {
-                                    if (idx === 2) setShowKidsModal(true);
-                                    else if (idx === 0) setShowWomensModal(true);
-                                    else setExpandedCard(isExpanded ? null : idx);
-                                }}
-                                className={`
-                                    group relative bg-gray-900/80 backdrop-blur-md transition-all duration-700 cursor-pointer overflow-hidden rounded-[2rem] border border-white/5 z-10 w-full text-left flex flex-col
-                                    ${activeStateClass}
-                                `}
-                            >
-                                {/* Abstract Grayscale Background Image */}
-                                <div 
-                                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-700 mix-blend-luminosity ${isExpanded ? 'opacity-80 mix-blend-normal' : 'opacity-40 group-hover:opacity-80 group-hover:mix-blend-normal'}`} 
-                                    style={{ backgroundImage: `url('${card.img}')` }}
-                                ></div>
-                                
-                                {/* Bottom Color Glow Gradient (always on if expanded, on hover if not) */}
-                                <div 
-                                    className={`absolute inset-0 transition-opacity duration-700 pointer-events-none ${isExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} 
-                                    style={{ background: `linear-gradient(to top, ${card.hex}E0, ${card.hex}30 60%, transparent 90%)`, backdropFilter: isExpanded ? 'blur(8px)' : 'blur(4px)' }}
-                                ></div>
-                                
-                                {/* Content Container that pushes the card height naturally */}
-                                <div className="relative z-20 p-8 md:p-10 flex flex-col justify-end h-full min-h-[400px] md:min-h-[500px]">
-                                    <div className="transform transition-transform duration-500 w-full mt-auto" style={{ transform: isExpanded ? 'translateY(0)' : 'translateY(1rem)' }}>
-                                        <h3 className="text-xl lg:text-3xl font-black tracking-tight text-white uppercase mb-4 drop-shadow-md leading-none">
-                                            {card.title}
-                                        </h3>
-                                        
-                                        <p className={`text-white/90 font-medium text-sm drop-shadow-md transition-all duration-500 ${isExpanded ? 'mb-6 opacity-0 hidden' : 'mb-0 opacity-100'}`}>
-                                            {card.short}
-                                        </p>
-                                        
-                                        {idx === 2 && (
-                                            <div className="mt-8 flex items-center justify-between text-yellow-400 font-bold uppercase tracking-widest text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                                <span>Descubrir Programa</span>
-                                                <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                                                </svg>
-                                            </div>
-                                        )}
-
-                                        {/* Expanding targeted copy */}
-                                        <div className={`
-                                            overflow-hidden transition-all duration-700 ease-in-out
-                                            ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}
-                                        `}>
-                                            <div className="w-8 h-1 bg-white/50 mb-4"></div>
-                                            <p className="text-white/95 font-light leading-relaxed italic drop-shadow-sm text-sm sm:text-base mb-6">
-                                                "{card.long}"
-                                            </p>
-                                            
-                                            <button className="px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors rounded-sm flex items-center justify-between w-full shadow-lg">
-                                                Join this track
-                                                <svg className="w-5 h-5 translate-x-0 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {/* Indicator for interaction */}
-                                <div className={`absolute top-6 right-6 transition-opacity duration-300 ${isExpanded ? 'opacity-0' : 'opacity-40 group-hover:opacity-100'}`}>
-                                    <svg className="w-6 h-6 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
+                {/* Interactive Cards — glassmorphism + Foundation-style animations */}
+                <WhoWeHelpCards
+                    expandedCard={expandedCard}
+                    setExpandedCard={setExpandedCard}
+                    onKidsModal={() => setShowKidsModal(true)}
+                    onWomensModal={() => setShowWomensModal(true)}
+                    onSpiralOpen={() => setShowSpiralExperience(true)}
+                />
             </div>
         </section>
 
@@ -805,9 +765,12 @@ function App() {
         <div className="section-divider mx-8 md:mx-24" />
 
         {/* ── Pricing & CTA Section ── */}
-        <section className="px-4 md:px-8 lg:px-24 pt-20 pb-16 md:pt-28 md:pb-20 bg-transparent relative z-20 pointer-events-none overflow-hidden overflow-y-visible">
-            <BeltMandala />
-            
+        <section id="pricing" className="px-4 md:px-8 lg:px-24 pt-20 pb-16 md:pt-28 md:pb-20 bg-transparent relative z-20 pointer-events-none">
+            {/* BeltMandala clipped in its own container so it doesn't cause section scroll */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <BeltMandala />
+            </div>
+
             <div className="max-w-7xl mx-auto pointer-events-auto relative z-10">
                 <div className="text-center mb-16 relative">
                     <h2 className="font-sans font-black text-4xl md:text-5xl lg:text-6xl tracking-tighter text-gray-900 uppercase leading-none mb-4 relative z-10">
@@ -823,7 +786,7 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center max-w-7xl mx-auto relative z-20 mb-12">
                     
                     {/* Foundation Card */}
-                    <div className="bg-white/40 backdrop-blur-md rounded-3xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col hover:bg-white/60 hover:shadow-[0_20px_40px_rgba(59,130,246,0.1)] transition-all duration-500 group overflow-hidden relative">
+                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 shadow-xl flex flex-col hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(59,130,246,0.1)] transition-all duration-500 group overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                         <div className="mb-8 relative z-10">
@@ -847,7 +810,7 @@ function App() {
                     </div>
 
                     {/* The Warrior Card */}
-                    <div className="bg-white/40 backdrop-blur-md rounded-3xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col hover:bg-white/60 hover:shadow-[0_20px_40px_rgba(234,88,12,0.15)] transition-all duration-500 transform lg:scale-105 z-10 group overflow-hidden relative">
+                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 shadow-xl flex flex-col hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(234,88,12,0.15)] transition-all duration-500 transform lg:scale-105 z-10 group overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                         <div className="absolute top-0 right-8 bg-orange-600 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-b-md shadow-md">El No-Brainer</div>
 
@@ -874,11 +837,11 @@ function App() {
                     </div>
 
                     {/* Kids Programs Card */}
-                    <div className="bg-white/40 backdrop-blur-md rounded-3xl border border-white/20 shadow-xl flex flex-col hover:bg-white/60 hover:shadow-[0_20px_40px_rgba(22,163,74,0.15)] hover:border-green-400/50 transition-all duration-500 group overflow-hidden relative">
+                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl border border-white/30 shadow-xl flex flex-col hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(22,163,74,0.15)] hover:border-green-400/50 transition-all duration-500 group overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-                        {/* Top Section: Kids Unlimited */}
-                        <div className="p-8 pb-4 relative z-10 border-b border-gray-100">
+                        {/* Tier 1: Kids Unlimited — content + button paired */}
+                        <div className="p-8 pb-6 relative z-10 flex-1 flex flex-col">
                             <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-green-600 transition-colors">Kids Unlimited</h3>
                             <div className="flex items-baseline gap-1 text-gray-900">
                                 <span className="text-4xl font-black tracking-tighter">$149</span>
@@ -887,10 +850,21 @@ function App() {
                             <p className="text-xs text-gray-500 mt-2 font-light leading-relaxed">
                                 Unlimited access to BJJ and Kung Fu Kids classes.
                             </p>
+                            <a
+                                href="https://link.bizly.pro/payment-link/697ad5da6503caab227730c4"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-auto pt-5 block w-full py-3 px-6 text-center text-gray-900 bg-transparent border-2 border-gray-900 rounded-sm font-bold tracking-widest uppercase text-[10px] hover:bg-green-600 hover:border-green-600 hover:text-white transition-all"
+                            >
+                                Enroll Unlimited
+                            </a>
                         </div>
-                        
-                        {/* Bottom Section: BJJ Kids */}
-                        <div className="p-8 pt-6 relative z-10 flex-grow">
+
+                        {/* Translucent divider between tiers */}
+                        <div className="mx-6 border-t border-white/50" />
+
+                        {/* Tier 2: BJJ Kids — content + button paired */}
+                        <div className="p-8 pt-6 pb-8 relative z-10 flex-1 flex flex-col">
                             <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-green-600 transition-colors">BJJ Kids</h3>
                             <div className="flex items-baseline gap-1 text-gray-900">
                                 <span className="text-4xl font-black tracking-tighter">$99</span>
@@ -899,13 +873,12 @@ function App() {
                             <p className="text-xs text-gray-500 mt-2 font-light leading-relaxed">
                                 1 class per week.
                             </p>
-                        </div>
-
-                        <div className="px-8 pb-8 space-y-3">
-                            <a href="https://link.bizly.pro/payment-link/697ad5da6503caab227730c4" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-6 text-center text-gray-900 bg-transparent border-2 border-gray-900 rounded-sm font-bold tracking-widest uppercase text-[10px] hover:bg-green-600 hover:border-green-600 hover:text-white transition-all">
-                                Enroll Unlimited
-                            </a>
-                            <a href="https://link.bizly.pro/payment-link/697ad59277ba09f413ce0e89" target="_blank" rel="noopener noreferrer" className="block w-full py-3 px-6 text-center text-gray-500 bg-transparent border border-gray-200 rounded-sm font-bold tracking-widest uppercase text-[10px] hover:bg-gray-100 transition-all">
+                            <a
+                                href="https://link.bizly.pro/payment-link/697ad59277ba09f413ce0e89"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-auto pt-5 block w-full py-3 px-6 text-center text-gray-500 bg-transparent border border-gray-200 rounded-sm font-bold tracking-widest uppercase text-[10px] hover:bg-gray-100 transition-all"
+                            >
                                 Enroll 1x Week
                             </a>
                         </div>
@@ -915,7 +888,7 @@ function App() {
 
                 {/* The Elite Horizontal Card */}
                 <div className="max-w-7xl mx-auto relative z-20">
-                    <div className="bg-white/40 backdrop-blur-md rounded-3xl p-8 md:p-10 border border-white/20 shadow-xl hover:bg-white/60 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/30 shadow-xl hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="flex-1 text-center md:text-left">
                             <div className="flex flex-col md:flex-row md:items-baseline gap-2 mb-4">
                                 <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-amber-600 transition-colors">The Elite</h3>
@@ -1123,6 +1096,8 @@ function App() {
         </AnimatePresence>
 
         <SurveyModal isOpen={showSurveyModal} onClose={() => setShowSurveyModal(false)} />
+
+        <SpiralExperience isOpen={showSpiralExperience} onClose={() => setShowSpiralExperience(false)} />
 
         {/* ── LEAD CAPTURE POPUPS ── */}
         <ScrollPopup onSurveyOpen={() => setShowSurveyModal(true)} />
