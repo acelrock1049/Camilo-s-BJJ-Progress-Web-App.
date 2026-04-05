@@ -11,6 +11,10 @@ import { BookSection } from './components/BookSection';
 import { FoundationSection } from './components/FoundationSection';
 import { FooterOld } from './components/FooterOld';
 import { AnimatedHero } from './components/AnimatedHero';
+import imgWomens from './assets/paula-camilo.jpeg';
+import imgSelfImprovement from './assets/self-improvement.jpg';
+import imgBjjKids from './assets/bjj-kids-banner.png';
+
 
 const BeltMandala = () => {
     return (
@@ -67,7 +71,7 @@ const WHO_CARDS = [
         accentTo: '#f43f5e',
         glowColor: 'rgba(236,72,153,0.3)',
         borderActive: 'border-pink-400/50',
-        img: '/paula-camilo.jpeg',
+        img: imgWomens,
         action: 'womens' as const,
     },
     {
@@ -79,7 +83,7 @@ const WHO_CARDS = [
         accentTo: '#06b6d4',
         glowColor: 'rgba(234,179,8,0.3)',
         borderActive: 'border-yellow-400/50',
-        img: '/src/assets/self-improvement.jpg',
+        img: imgSelfImprovement,
         action: 'expand' as const,
     },
     {
@@ -91,7 +95,8 @@ const WHO_CARDS = [
         accentTo: '#22c55e',
         glowColor: 'rgba(22,163,74,0.3)',
         borderActive: 'border-green-500/50',
-        img: '/src/assets/bjj-kids-banner.png',
+        img: imgBjjKids,
+
         action: 'kids' as const,
     },
 ] as const;
