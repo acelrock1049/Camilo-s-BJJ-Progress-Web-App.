@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import * as THREE from 'three';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { Brain, Menu, X } from 'lucide-react';
 import './index.css';
 import camiloImg from './assets/camilo.jpg';
@@ -79,7 +79,7 @@ const WHO_CARDS = [
         accentTo: '#06b6d4',
         glowColor: 'rgba(234,179,8,0.3)',
         borderActive: 'border-yellow-400/50',
-        img: 'https://images.unsplash.com/photo-1555626906-fcf10d6851b4?auto=format&fit=crop&q=80&w=800',
+        img: '/src/assets/self-improvement.jpg',
         action: 'expand' as const,
     },
     {
@@ -95,6 +95,46 @@ const WHO_CARDS = [
         action: 'kids' as const,
     },
 ] as const;
+
+// ── Pricing card wrapper: desktop hover + mobile scroll-in glow ──
+function PricingGlowCard({
+    children,
+    accentGlow,
+    className,
+}: {
+    children: ReactNode;
+    accentGlow: string; // e.g. '0 20px 40px rgba(59,130,246,0.2)'
+    className?: string;
+}) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [hovered, setHovered] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const inView = useInView(ref, { amount: 0.7, once: false });
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 768);
+        check();
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
+    const showGlow = hovered || (isMobile && inView);
+
+    return (
+        <div
+            ref={ref}
+            className={className}
+            style={{
+                boxShadow: showGlow ? accentGlow : '0 8px 32px rgba(0,0,0,0.06)',
+                transition: 'box-shadow 0.4s ease-in-out, background-color 0.35s ease-in-out',
+            }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            {children}
+        </div>
+    );
+}
 
 interface WhoWeHelpCardsProps {
     expandedCard: number | null;
@@ -204,21 +244,47 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
                                     <p className="text-white/90 font-light leading-relaxed italic text-sm sm:text-base mb-5">
                                         "{card.long}"
                                     </p>
-                                    <button
+                                    {card.action !== 'expand' && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (card.action === 'expand') {
+                                                    onSpiralOpen();
+                                                }
+                                            }}
+                                            className="px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                        >
+                                            Join this track
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </motion.div>
+
+                                {/* Always visible pulsating button for Self Improvement Seekers */}
+                                {card.action === 'expand' && (
+                                    <motion.button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            if (card.action === 'expand') {
-                                                onSpiralOpen();
-                                            }
+                                            onSpiralOpen();
                                         }}
-                                        className="px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                                        animate={{
+                                            boxShadow: [
+                                                "0 0 10px rgba(234,179,8,0)",
+                                                "0 0 30px rgba(234,179,8,0.8)",
+                                                "0 0 10px rgba(234,179,8,0)"
+                                            ]
+                                        }}
+                                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                                        className="mt-6 px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 hover:bg-gray-100 hover:scale-105 transition-all cursor-pointer z-20 self-start group"
                                     >
-                                        {card.action === 'expand' ? 'Discover It' : 'Join this track'}
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        Discover It
+                                        <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                         </svg>
-                                    </button>
-                                </motion.div>
+                                    </motion.button>
+                                )}
                             </motion.div>
                         </div>
 
@@ -426,7 +492,7 @@ function App() {
   }, []);
 
   return (
-    <div className="antialiased">
+    <div className="antialiased max-w-[100vw] overflow-x-hidden">
       {/* DNA helix background */}
       <div id="canvas-container" ref={mountRef}></div>
 
@@ -786,11 +852,14 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center max-w-7xl mx-auto relative z-20 mb-12">
                     
                     {/* Foundation Card */}
-                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 shadow-xl flex flex-col hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(59,130,246,0.1)] transition-all duration-500 group overflow-hidden relative">
+                    <PricingGlowCard
+                        accentGlow="0 20px 48px rgba(59,130,246,0.2), 0 0 0 1px rgba(59,130,246,0.1)"
+                        className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 flex flex-col group overflow-hidden relative hover:bg-white/65"
+                    >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                         <div className="mb-8 relative z-10">
-                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-blue-600 transition-colors">Foundation</h3>
+                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-blue-600 transition-colors duration-350">Foundation</h3>
                             <div className="flex items-baseline gap-1 text-gray-900">
                                 <span className="text-5xl font-black tracking-tighter">$49</span>
                                 <span className="text-gray-500 font-medium lowercase">/week</span>
@@ -807,15 +876,19 @@ function App() {
                         <a href="https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce" target="_blank" rel="noopener noreferrer" className="relative z-10 block w-full py-4 px-6 text-center text-gray-900 bg-transparent border-2 border-gray-900 rounded-sm font-bold tracking-widest uppercase text-xs hover:bg-gray-900 hover:text-white transition-all mt-auto shadow-sm">
                             Get Started
                         </a>
-                    </div>
+                    </PricingGlowCard>
 
                     {/* The Warrior Card */}
-                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 shadow-xl flex flex-col hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(234,88,12,0.15)] transition-all duration-500 transform lg:scale-105 z-10 group overflow-hidden relative">
+                    {/* The Warrior Card */}
+                    <PricingGlowCard
+                        accentGlow="0 20px 48px rgba(234,88,12,0.22), 0 0 0 1px rgba(234,88,12,0.1)"
+                        className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 flex flex-col transform lg:scale-105 z-10 group overflow-hidden relative hover:bg-white/65"
+                    >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                         <div className="absolute top-0 right-8 bg-orange-600 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-b-md shadow-md">El No-Brainer</div>
 
                         <div className="mb-8 pt-4 relative z-10">
-                            <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-orange-600 transition-colors">The Warrior</h3>
+                            <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-orange-600 transition-colors duration-350">The Warrior</h3>
                             <div className="flex items-baseline gap-1 text-gray-900">
                                 <span className="text-6xl font-black tracking-tighter">$69</span>
                                 <span className="text-gray-500 font-medium lowercase">/week</span>
@@ -834,15 +907,18 @@ function App() {
                             Join Now
                             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                         </a>
-                    </div>
+                    </PricingGlowCard>
 
                     {/* Kids Programs Card */}
-                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl border border-white/30 shadow-xl flex flex-col hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(22,163,74,0.15)] hover:border-green-400/50 transition-all duration-500 group overflow-hidden relative">
+                    <PricingGlowCard
+                        accentGlow="0 20px 48px rgba(22,163,74,0.2), 0 0 0 1px rgba(22,163,74,0.1)"
+                        className="bg-white/50 backdrop-blur-xl rounded-3xl border border-white/30 flex flex-col group overflow-hidden relative hover:bg-white/65 hover:border-green-400/50"
+                    >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                         {/* Tier 1: Kids Unlimited — content + button paired */}
                         <div className="p-8 pb-6 relative z-10 flex-1 flex flex-col">
-                            <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-green-600 transition-colors">Kids Unlimited</h3>
+                            <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-green-600 transition-colors duration-350">Kids Unlimited</h3>
                             <div className="flex items-baseline gap-1 text-gray-900">
                                 <span className="text-4xl font-black tracking-tighter">$149</span>
                                 <span className="text-gray-500 font-medium lowercase">/month</span>
@@ -865,7 +941,7 @@ function App() {
 
                         {/* Tier 2: BJJ Kids — content + button paired */}
                         <div className="p-8 pt-6 pb-8 relative z-10 flex-1 flex flex-col">
-                            <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-green-600 transition-colors">BJJ Kids</h3>
+                            <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 group-hover:text-green-600 transition-colors duration-350">BJJ Kids</h3>
                             <div className="flex items-baseline gap-1 text-gray-900">
                                 <span className="text-4xl font-black tracking-tighter">$99</span>
                                 <span className="text-gray-500 font-medium lowercase">/month</span>
@@ -882,13 +958,16 @@ function App() {
                                 Enroll 1x Week
                             </a>
                         </div>
-                    </div>
+                    </PricingGlowCard>
 
                 </div>
 
                 {/* The Elite Horizontal Card */}
                 <div className="max-w-7xl mx-auto relative z-20">
-                    <div className="bg-white/55 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/30 shadow-xl hover:bg-white/70 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 group overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                    <PricingGlowCard
+                        accentGlow="0 20px 48px rgba(180,130,0,0.15), 0 0 0 1px rgba(180,130,0,0.08)"
+                        className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/30 group overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 hover:bg-white/65"
+                    >
                         <div className="flex-1 text-center md:text-left">
                             <div className="flex flex-col md:flex-row md:items-baseline gap-2 mb-4">
                                 <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-amber-600 transition-colors">The Elite</h3>
@@ -912,7 +991,7 @@ function App() {
                                 Apply Now
                             </a>
                         </div>
-                    </div>
+                    </PricingGlowCard>
                 </div>
 
 
