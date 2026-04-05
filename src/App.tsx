@@ -9,6 +9,8 @@ import { SpiralExperience } from './components/SpiralExperience';
 import { ScrollPopup, ExitIntentPopup } from './components/LeadCapturePopup';
 import { BookSection } from './components/BookSection';
 import { FoundationSection } from './components/FoundationSection';
+import { WeeklyTimetable } from './components/WeeklyTimetable';
+import { TrialBookingModal } from './components/TrialBookingModal';
 import { FooterOld } from './components/FooterOld';
 import { AnimatedHero } from './components/AnimatedHero';
 import imgWomens from './assets/paula-camilo.jpeg';
@@ -132,6 +134,10 @@ function PricingGlowCard({
             style={{
                 boxShadow: showGlow ? accentGlow : '0 8px 32px rgba(0,0,0,0.06)',
                 transition: 'box-shadow 0.4s ease-in-out, background-color 0.35s ease-in-out',
+                background: hovered ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.20)',
             }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -312,6 +318,25 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
     );
 }
 
+// ─── Scroll Progress Bar ──────────────────────────────────────────────────────
+
+function ScrollProgressBar() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 30 });
+
+  return (
+    <motion.div
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0,
+        height: 3, zIndex: 9999,
+        background: 'linear-gradient(to right, #f97316, #ea580c)',
+        transformOrigin: '0%',
+        scaleX,
+      }}
+    />
+  );
+}
+
 function App() {
   const mountRef = useRef<HTMLDivElement>(null);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
@@ -320,6 +345,7 @@ function App() {
   const [showTimetableModal, setShowTimetableModal] = useState(false);
   const [showSurveyModal, setShowSurveyModal] = useState(false);
   const [showSpiralExperience, setShowSpiralExperience] = useState(false);
+  const [showTrialModal, setShowTrialModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // ── Scroll-aware header / logo ──
@@ -345,19 +371,21 @@ function App() {
   // Logo: centered + 150% at scroll=0, springs to top-left at 100% on scroll
   const logoXRaw    = useTransform(scrollY, [0, 100], [logoOffset, 0]);
   const logoX       = useSpring(logoXRaw,    { stiffness: 260, damping: 30 });
-  const logoScaleRaw = useTransform(scrollY, [0, 100], [1.5, 1]);
+  const logoYRaw    = useTransform(scrollY, [0, 100], [50, 0]);
+  const logoY       = useSpring(logoYRaw,    { stiffness: 260, damping: 30 });
+  const logoScaleRaw = useTransform(scrollY, [0, 100], [2.5, 1]);
   const logoScale   = useSpring(logoScaleRaw, { stiffness: 260, damping: 30 });
 
   const headerBgOpacity = useTransform(scrollY, [0, 90], [0, 1]);
   const navOpacity = useTransform(scrollY, [40, 90], [0, 1]);
 
   useEffect(() => {
-    if (showKidsModal || showWomensModal || showTimetableModal || showSurveyModal || showSpiralExperience) {
+    if (showKidsModal || showWomensModal || showTimetableModal || showSurveyModal || showSpiralExperience || showTrialModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [showKidsModal, showWomensModal, showTimetableModal, showSurveyModal, showSpiralExperience]);
+  }, [showKidsModal, showWomensModal, showTimetableModal, showSurveyModal, showSpiralExperience, showTrialModal]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -500,6 +528,9 @@ function App() {
 
   return (
     <div className="antialiased max-w-[100vw] overflow-x-hidden">
+      {/* Scroll progress bar */}
+      <ScrollProgressBar />
+
       {/* DNA helix background */}
       <div id="canvas-container" ref={mountRef}></div>
 
@@ -520,7 +551,7 @@ function App() {
                 src="/sticker.png"
                 alt="Camilo's BJJ Logo"
                 className="h-16 w-auto object-contain drop-shadow-2xl cursor-pointer select-none shrink-0"
-                style={{ x: logoX, scale: logoScale }}
+                style={{ x: logoX, y: logoY, scale: logoScale }}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             />
 
@@ -534,7 +565,7 @@ function App() {
                     onClick={() => setShowTimetableModal(true)}
                     className="hover:text-orange-500 transition-colors"
                 >
-                    Timetable
+                    TIMETABLE
                 </button>
                 <a href="#pricing" className="hover:text-orange-500 transition-colors">Pricing</a>
 
@@ -616,7 +647,7 @@ function App() {
                             onClick={() => { setShowTimetableModal(true); setShowMobileMenu(false); }}
                             className="text-left text-sm font-bold tracking-widest uppercase text-gray-900 hover:text-orange-500 transition-colors"
                         >
-                            Timetable
+                            TIMETABLE
                         </button>
                         <a
                             href="#pricing"
@@ -856,12 +887,19 @@ function App() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-red-400/5 rounded-full blur-3xl -z-10"></div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center max-w-7xl mx-auto relative z-20 mb-12">
+                {/* Container for Glassmorphism Background Orbs */}
+                <div className="relative">
+                    {/* Vibrant Electric Orbs to fuel the Glassmorphism */}
+                    <div className="absolute -top-10 -left-10 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+                    <div className="absolute -bottom-10 -right-10 w-96 h-96 bg-green-500/20 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center max-w-7xl mx-auto relative z-20 mb-12">
                     
                     {/* Foundation Card */}
                     <PricingGlowCard
                         accentGlow="0 20px 48px rgba(59,130,246,0.2), 0 0 0 1px rgba(59,130,246,0.1)"
-                        className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 flex flex-col group overflow-hidden relative hover:bg-white/65"
+                        className="rounded-3xl p-8 lg:p-10 flex flex-col group overflow-hidden relative"
                     >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
@@ -889,7 +927,7 @@ function App() {
                     {/* The Warrior Card */}
                     <PricingGlowCard
                         accentGlow="0 20px 48px rgba(234,88,12,0.22), 0 0 0 1px rgba(234,88,12,0.1)"
-                        className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 lg:p-10 border border-white/30 flex flex-col transform lg:scale-105 z-10 group overflow-hidden relative hover:bg-white/65"
+                        className="rounded-3xl p-8 lg:p-10 flex flex-col transform lg:scale-105 z-10 group overflow-hidden relative"
                     >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
                         <div className="absolute top-0 right-8 bg-orange-600 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-b-md shadow-md">El No-Brainer</div>
@@ -901,7 +939,7 @@ function App() {
                                 <span className="text-gray-500 font-medium lowercase">/week</span>
                             </div>
                             <p className="text-sm text-gray-500 mt-4 max-w-sm font-light leading-relaxed">
-                                Includes all classes from Candidas BJJ and Empower Tactical.
+                                Includes all classes from Camilo's BJJ and Empower Tactical.
                             </p>
                             <button onClick={() => setShowTimetableModal(true)} className="text-[10px] text-orange-600 font-bold uppercase tracking-widest mt-2 hover:underline">See timetable</button>
                         </div>
@@ -919,7 +957,7 @@ function App() {
                     {/* Kids Programs Card */}
                     <PricingGlowCard
                         accentGlow="0 20px 48px rgba(22,163,74,0.2), 0 0 0 1px rgba(22,163,74,0.1)"
-                        className="bg-white/50 backdrop-blur-xl rounded-3xl border border-white/30 flex flex-col group overflow-hidden relative hover:bg-white/65 hover:border-green-400/50"
+                        className="rounded-3xl flex flex-col group overflow-hidden relative hover:border-green-400/50"
                     >
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
@@ -973,7 +1011,7 @@ function App() {
                 <div className="max-w-7xl mx-auto relative z-20">
                     <PricingGlowCard
                         accentGlow="0 20px 48px rgba(180,130,0,0.15), 0 0 0 1px rgba(180,130,0,0.08)"
-                        className="bg-white/50 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-white/30 group overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 hover:bg-white/65"
+                        className="rounded-3xl p-8 md:p-10 group overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8"
                     >
                         <div className="flex-1 text-center md:text-left">
                             <div className="flex flex-col md:flex-row md:items-baseline gap-2 mb-4">
@@ -999,6 +1037,7 @@ function App() {
                             </a>
                         </div>
                     </PricingGlowCard>
+                </div>
                 </div>
 
 
@@ -1051,7 +1090,7 @@ function App() {
         <div className="section-divider mx-8 md:mx-24" />
 
         {/* ── BOOK A CLASS SECTION ── */}
-        <BookSection onFullTimetable={() => setShowTimetableModal(true)} />
+        <BookSection onFullTimetable={() => setShowTimetableModal(true)} onBookTrial={() => setShowTrialModal(true)} />
 
         {/* ── FINAL CTA + FOOTER ── */}
         <section className="relative overflow-hidden">
@@ -1178,12 +1217,14 @@ function App() {
         <AnimatePresence>
             {showKidsModal && <KidsModal isOpen={showKidsModal} onClose={() => setShowKidsModal(false)} />}
             {showWomensModal && <WomensModal isOpen={showWomensModal} onClose={() => setShowWomensModal(false)} />}
-            {showTimetableModal && <TimetableModal isOpen={showTimetableModal} onClose={() => setShowTimetableModal(false)} />}
+            {showTimetableModal && <TimetableModal isOpen={showTimetableModal} onClose={() => setShowTimetableModal(false)} onBookTrial={() => { setShowTimetableModal(false); setShowTrialModal(true); }} />}
         </AnimatePresence>
+
+        <TrialBookingModal isOpen={showTrialModal} onClose={() => setShowTrialModal(false)} />
 
         <SurveyModal isOpen={showSurveyModal} onClose={() => setShowSurveyModal(false)} />
 
-        <SpiralExperience isOpen={showSpiralExperience} onClose={() => setShowSpiralExperience(false)} />
+        <SpiralExperience isOpen={showSpiralExperience} onClose={() => setShowSpiralExperience(false)} onBookTrial={() => { setShowSpiralExperience(false); setShowTrialModal(true); }} />
 
         {/* ── LEAD CAPTURE POPUPS ── */}
         <ScrollPopup onSurveyOpen={() => setShowSurveyModal(true)} />
@@ -1509,77 +1550,7 @@ const FAQItem = ({ question, answer, color }: { question: string, answer: string
     );
 };
 
-// --- TIMETABLE COMPONENT ---
-const SCHEDULE_DATA = [
-  {
-    day: "Monday",
-    classes: [
-      { time: "6:00 - 6:45am", name: "Boxing", type: "striking" },
-      { time: "12:00 - 12:30pm", name: "HIIT", type: "fitness" },
-      { time: "6:30 - 7:30pm", name: "Adult Kung Fu (Foundation)", type: "kungfu" }
-    ]
-  },
-  {
-    day: "Tuesday",
-    classes: [
-      { time: "6:00 - 6:45am", name: "Boxing", type: "striking" },
-      { time: "12:00 - 12:30pm", name: "HIIT", type: "fitness" },
-      { time: "5:00 - 5:50pm", name: "Kids BJJ", type: "kids" },
-      { time: "6:00 - 7:00pm", name: "Adult BJJ Beginners", type: "adult" },
-      { time: "7:00 - 8:00pm", name: "Adult BJJ Intermediate", type: "adult" }
-    ]
-  },
-  {
-    day: "Wednesday",
-    classes: [
-      { time: "12:00 - 12:30pm", name: "HIIT", type: "fitness" },
-      { time: "5:30 - 6:20pm", name: "Kung Fu Kids", type: "kids" },
-      { time: "6:30 - 7:45pm", name: "Adult Kung Fu (Forms & Apps)", type: "kungfu" }
-    ]
-  },
-  {
-    day: "Thursday",
-    classes: [
-      { time: "6:00 - 7:00pm", name: "Fight Choreography", type: "kungfu" }
-    ]
-  },
-  {
-    day: "Friday",
-    classes: [
-      { time: "6:00 - 7:00pm", name: "Adult BJJ Beginners", type: "adult" },
-      { time: "7:00 - 8:00pm", name: "Adult BJJ Intermediate", type: "adult" }
-    ]
-  },
-  {
-    day: "Saturday",
-    classes: [
-      { time: "1:00 - 3:00pm", name: "Adult BJJ Fundamental Class", type: "adult" }
-    ]
-  },
-  {
-    day: "Sunday",
-    classes: [
-      { time: "9:00 - 9:50am", name: "Kids BJJ", type: "kids" },
-      { time: "10:00 - 10:50am", name: "Kung Fu Kids", type: "kids" },
-      { time: "11:00am - 12:00pm", name: "Adult Kung Fu (Apps & Sparring)", type: "kungfu" }
-    ]
-  }
-];
-
-const getClassStyles = (type: string) => {
-    switch(type) {
-        case 'kids':
-            return 'bg-green-50 border-green-200 text-green-700 shadow-[0_2px_10px_rgba(34,197,94,0.1)]'; // Green
-        case 'womens':
-            return 'bg-pink-50 border-pink-200 text-pink-700 shadow-[0_2px_10px_rgba(236,72,153,0.1)]'; // Pink
-        case 'adult':
-            return 'bg-orange-50 border-orange-200 text-orange-700 shadow-[0_2px_10px_rgba(249,115,22,0.1)]'; // Orange
-        default:
-            return 'bg-gray-50 border-gray-200 text-gray-700'; // Default/Neutral
-    }
-};
-
-const TimetableModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+const TimetableModal = ({ isOpen, onClose, onBookTrial }: { isOpen: boolean, onClose: () => void, onBookTrial: () => void }) => {
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
         window.addEventListener('keydown', handleEsc);
@@ -1590,82 +1561,32 @@ const TimetableModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => v
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-            <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer"
+                className="absolute inset-0 bg-black/70 backdrop-blur-xl cursor-pointer"
                 onClick={onClose}
-            ></motion.div>
+            />
 
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="relative bg-white w-full max-w-7xl max-h-[90vh] rounded-[2rem] overflow-y-auto shadow-2xl ring-1 ring-black/5 flex flex-col z-10"
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto z-10 scrollbar-hide"
             >
-                <button 
+                <button
                     onClick={onClose}
-                    className="absolute top-6 border border-gray-200 right-6 p-2 bg-white/80 hover:bg-gray-100 backdrop-blur-md text-gray-600 rounded-full transition-all z-50"
+                    className="absolute top-4 right-4 p-2 bg-white/80 hover:bg-white backdrop-blur-md text-gray-600 rounded-full border border-gray-200 transition-all z-50 shadow-sm"
                 >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
 
-                <div className="p-8 md:p-12 mb-8 relative overflow-hidden shrink-0 border-b border-gray-100">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                    
-                    <div className="relative z-10 text-center">
-                        <span className="inline-block px-4 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-600 text-xs font-bold tracking-widest uppercase mb-4">
-                            Training Schedule
-                        </span>
-                        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tight text-gray-900 mb-2">
-                            Weekly <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">Timetable</span>
-                        </h2>
-                        <p className="font-serif italic text-gray-600 text-xl md:text-2xl mt-4">
-                            Find your class. Engineer your evolution.
-                        </p>
-                    </div>
-
-                    <div className="mt-8 flex flex-wrap justify-center gap-6 text-xs font-bold uppercase tracking-widest">
-                        <div className="flex items-center gap-2 text-green-600"><span className="w-3 h-3 rounded-full bg-green-500"></span> Kids Program</div>
-                        <div className="flex items-center gap-2 text-orange-600"><span className="w-3 h-3 rounded-full bg-orange-500"></span> Adult BJJ (The Smart System)</div>
-                    </div>
-                </div>
-
-                <div className="px-6 md:px-12 pb-12 overflow-x-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 min-w-[300px] lg:min-w-[1000px]">
-                        {SCHEDULE_DATA.map((dayData, idx) => (
-                            <div key={idx} className="flex flex-col bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                                <h3 className="text-center font-black uppercase text-xl text-gray-900 mb-4 tracking-wider pb-2 border-b border-gray-200">
-                                    {dayData.day}
-                                </h3>
-                                <div className="flex flex-col gap-3 flex-grow">
-                                    {dayData.classes.length > 0 ? (
-                                        dayData.classes.map((cls, cIdx) => (
-                                            <div key={cIdx} className={`p-4 rounded-xl border flex flex-col items-center text-center transition-all duration-300 hover:scale-[1.02] ${getClassStyles(cls.type)}`}>
-                                                <span className="font-bold tracking-widest text-[10px] uppercase opacity-70 mb-1">{cls.time}</span>
-                                                <span className="font-black leading-tight text-sm uppercase">{cls.name}</span>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="flex-grow flex items-center justify-center p-4">
-                                            <span className="text-gray-400 italic font-serif text-sm">Rest day / Open Mat</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                
-                <div className="px-6 md:px-12 py-6 bg-gray-50 border-t border-gray-100 flex justify-center items-center rounded-b-[2rem]">
-                    <a href="https://wa.me/message/YOUR_WHATSAPP_LINK" target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-gray-900 text-white border border-transparent font-bold tracking-widest text-sm uppercase hover:bg-orange-500 transition-colors rounded-full shadow-lg text-center">
-                        Book a Trial
-                    </a>
-                </div>
+                <WeeklyTimetable onBook={onBookTrial} />
             </motion.div>
         </div>
     );

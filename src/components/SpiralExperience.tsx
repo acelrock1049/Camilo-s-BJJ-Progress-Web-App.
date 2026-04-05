@@ -340,9 +340,10 @@ function GlowButton({
 interface SpiralExperienceProps {
   isOpen: boolean
   onClose: () => void
+  onBookTrial: () => void
 }
 
-export function SpiralExperience({ isOpen, onClose }: SpiralExperienceProps) {
+export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperienceProps) {
   const [currentScene, setCurrentScene] = useState(0)
 
   // Reset scene when reopened
@@ -454,7 +455,7 @@ export function SpiralExperience({ isOpen, onClose }: SpiralExperienceProps) {
               {isFinalStage && (
                 <div className="mt-10 pointer-events-auto flex flex-col items-center gap-4">
                   <GlowButton
-                    onClick={() => window.open('https://wa.me/61489038711', '_blank')}
+                    onClick={onBookTrial}
                     className="!bg-white !text-black border-transparent hover:!bg-gray-200 hover:!text-black shadow-[0_0_30px_rgba(255,255,255,0.4)] px-12 py-4"
                   >
                     Book Your Free Trial

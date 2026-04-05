@@ -43,7 +43,19 @@ body, html {
   background: linear-gradient(to right, transparent, rgba(0,0,0,0.07), transparent);
 }
 
-/* Hide scrollbar for day tabs */
+/* ── Custom thin scrollbar — global ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(249,115,22,0.45); }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.15) transparent; }
+
+/* Hide scrollbar entirely (day tabs, timetable modal) */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 

@@ -9,58 +9,24 @@ import { motion } from 'framer-motion';
 const CSS = `
   /* Squircle ring pulse on hover */
   .sq-squircle {
-    transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease;
+    transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
   }
   .sq-card:hover .sq-squircle,
   .sq-card.sq-active .sq-squircle {
-    background-color: rgba(255,255,255,.88) !important;
+    background-color: rgba(255,255,255,.95) !important;
     border-color: var(--sq-accent) !important;
-    box-shadow: 0 0 0 5px var(--sq-glow);
+    box-shadow: 0 0 0 6px var(--sq-glow);
+    transform: translateY(-50%) scale(1.05) !important;
   }
 
-  /* ── SVG lines: draw from squircle right edge ── */
-  .sq-line {
-    stroke-dasharray: 300;
-    stroke-dashoffset: 300;
-    transition: stroke-dashoffset .42s cubic-bezier(.25,1,.5,1);
+  /* Card border + shadow transition + background */
+  .sq-card { 
+    transition: box-shadow .35s ease, border-color .35s ease, background-color .35s ease, transform .35s ease; 
   }
-  .sq-card:hover .sq-l0, .sq-card.sq-active .sq-l0 { stroke-dashoffset: 0; transition-delay: .04s; }
-  .sq-card:hover .sq-l1, .sq-card.sq-active .sq-l1 { stroke-dashoffset: 0; transition-delay: .11s; }
-  .sq-card:hover .sq-l2, .sq-card.sq-active .sq-l2 { stroke-dashoffset: 0; transition-delay: .18s; }
-
-  /* ── SVG endpoint dots ── */
-  .sq-dot {
-    opacity: 0;
-    transition: opacity .22s ease;
+  .sq-card:hover, .sq-card.sq-active {
+     background-color: rgba(255, 255, 255, 0.85);
+     transform: translateY(-2px);
   }
-  .sq-card:hover .sq-d0, .sq-card.sq-active .sq-d0 { opacity: 1; transition-delay: .28s; }
-  .sq-card:hover .sq-d1, .sq-card.sq-active .sq-d1 { opacity: 1; transition-delay: .33s; }
-  .sq-card:hover .sq-d2, .sq-card.sq-active .sq-d2 { opacity: 1; transition-delay: .38s; }
-
-  /* ── Bullet rows: slide in ── */
-  .sq-brow {
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity .28s ease, transform .28s ease;
-  }
-  .sq-card:hover .sq-br0, .sq-card.sq-active .sq-br0 { opacity:1; transform:translateX(0); transition-delay:.07s; }
-  .sq-card:hover .sq-br1, .sq-card.sq-active .sq-br1 { opacity:1; transform:translateX(0); transition-delay:.14s; }
-  .sq-card:hover .sq-br2, .sq-card.sq-active .sq-br2 { opacity:1; transform:translateX(0); transition-delay:.21s; }
-
-  /* ── Bullet text: expand max-width ── */
-  .sq-btxt {
-    max-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    display: block;
-    transition: max-width .5s cubic-bezier(.25,1,.5,1);
-  }
-  .sq-card:hover .sq-bt0, .sq-card.sq-active .sq-bt0 { max-width: 200px; transition-delay: .10s; }
-  .sq-card:hover .sq-bt1, .sq-card.sq-active .sq-bt1 { max-width: 200px; transition-delay: .18s; }
-  .sq-card:hover .sq-bt2, .sq-card.sq-active .sq-bt2 { max-width: 200px; transition-delay: .26s; }
-
-  /* Card border + shadow transition */
-  .sq-card { transition: box-shadow .35s ease, border-color .35s ease; }
 `;
 
 // ─────────────────────────────────────────────────────────────
@@ -187,10 +153,10 @@ const CONCEPTS = [
 
 const SQ = 72;         // squircle size
 const PAD = 16;        // card left padding
-const LINE = 64;       // SVG line horizontal length
-const BULLET_LEFT = PAD + SQ + LINE + 5 + 6; // 163 px
-const CARD_H = 104;    // fixed card height
-const Y_OFF = 32;      // vertical spread of top/bottom lines
+const LINE = 28;       // SVG line horizontal length, shortened!
+const BULLET_LEFT = PAD + SQ + LINE + 5 + 8; // 129 px
+const CARD_H = 160;    // taller card for wrapped text
+const Y_OFF = 46;      // vertical spread of top/bottom lines
 
 function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
     const [isActive, setIsActive] = useState(false);
@@ -286,47 +252,40 @@ function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
                         fill="none" stroke={concept.accentFrom} strokeWidth="1.5" strokeLinecap="round"
                     />
                     {/* Endpoint dots */}
-                    <circle className="sq-dot sq-d0" cx={LINE} cy={-Y_OFF} r="2.5" fill={concept.accentFrom} />
-                    <circle className="sq-dot sq-d1" cx={LINE} cy={0}      r="2.5" fill={concept.accentFrom} />
-                    <circle className="sq-dot sq-d2" cx={LINE} cy={Y_OFF}  r="2.5" fill={concept.accentFrom} />
+                    <circle cx={LINE} cy={-Y_OFF} r="2.5" fill={concept.accentFrom} />
+                    <circle cx={LINE} cy={0}      r="2.5" fill={concept.accentFrom} />
+                    <circle cx={LINE} cy={Y_OFF}  r="2.5" fill={concept.accentFrom} />
                 </svg>
             </div>
 
             {/*
               ── BULLET ROWS ──
               position:absolute, vertically centered.
-              Left = squircle-left + SQ + LINE + dot-diameter + gap = 163px.
-              Right = 0 → fills remaining card width, naturally capping text.
-              Gap 12px between rows. Each row ~20px tall.
-              Total 3 rows: 84px centered → row centers at −32, 0, +32 from card mid.
-              Matches SVG Y offsets exactly.
+              Right = 12 → fills remaining card width and wraps safely.
             */}
-            <div
-                style={{
-                    position: 'absolute',
-                    left: BULLET_LEFT,
-                    right: 0,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                }}
-            >
-                {concept.bullets.map((text, i) => (
-                    <div key={i} className={`sq-brow sq-br${i} flex items-center gap-2`}>
-                        {/* Accent dot */}
+            {concept.bullets.map((text, i) => {
+                const yOffsets = [-Y_OFF, 0, Y_OFF];
+                return (
+                    <div 
+                        key={i} 
+                        className="flex items-center gap-2.5 absolute"
+                        style={{
+                            left: BULLET_LEFT,
+                            right: 12,
+                            top: `calc(50% + ${yOffsets[i]}px)`,
+                            transform: 'translateY(-50%)'
+                        }}
+                    >
                         <span
                             className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                             style={{ backgroundColor: concept.accentFrom }}
                         />
-                        {/* Text — expands from max-width: 0 via CSS */}
-                        <span className={`sq-btxt sq-bt${i} text-[13px] text-gray-700 font-light leading-tight`}>
+                        <span className="text-[13px] text-gray-700 font-light leading-[1.3] text-balance">
                             {text}
                         </span>
                     </div>
-                ))}
-            </div>
+                );
+            })}
         </div>
     );
 }

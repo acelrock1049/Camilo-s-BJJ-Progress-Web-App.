@@ -63,9 +63,10 @@ const DAYS_FULL: Record<string, string> = {
 // ─────────────────────────────────────────────
 interface BookSectionProps {
     onFullTimetable: () => void;
+    onBookTrial: () => void;
 }
 
-export function BookSection({ onFullTimetable }: BookSectionProps) {
+export function BookSection({ onFullTimetable, onBookTrial }: BookSectionProps) {
     const [activeDay, setActiveDay] = useState<string | null>(null);
 
     const todayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
@@ -105,17 +106,15 @@ export function BookSection({ onFullTimetable }: BookSectionProps) {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-                        <a
-                            href="https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={onBookTrial}
                             className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-gray-900 text-white font-bold tracking-widest text-xs uppercase rounded-sm hover:bg-black hover:shadow-[0_0_30px_rgba(0,0,0,0.2)] transition-all"
                         >
                             <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Book free trial
-                        </a>
+                        </button>
                         <button
                             onClick={onFullTimetable}
                             className="inline-flex items-center justify-center gap-2 px-7 py-4 border border-gray-300 text-gray-600 font-bold tracking-widest text-xs uppercase rounded-sm hover:border-gray-500 hover:bg-white/60 hover:backdrop-blur-sm transition-all"
@@ -127,9 +126,10 @@ export function BookSection({ onFullTimetable }: BookSectionProps) {
 
                 {/* ── Day Tabs ── */}
                 <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
-                    {BJJ_SCHEDULE.map(({ day }) => {
+                    {BJJ_SCHEDULE.map(({ day, classes }) => {
                         const isToday = day === todayShort;
                         const isActive = day === displayDay;
+                        const hasClasses = classes.length > 0;
                         return (
                             <button
                                 key={day}
@@ -138,7 +138,9 @@ export function BookSection({ onFullTimetable }: BookSectionProps) {
                                     relative shrink-0 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all
                                     ${isActive
                                         ? 'bg-gray-900 text-white shadow-md'
-                                        : 'bg-white/60 backdrop-blur-sm border border-gray-200/70 text-gray-500 hover:border-gray-400 hover:text-gray-900 hover:bg-white/80'
+                                        : hasClasses
+                                            ? 'bg-white/80 backdrop-blur-sm border border-gray-400 text-gray-900 hover:border-gray-600 hover:bg-white shadow-sm'
+                                            : 'bg-white/30 backdrop-blur-sm border border-gray-200/50 text-gray-400 hover:bg-white/40 opacity-50'
                                     }
                                 `}
                             >
@@ -180,17 +182,15 @@ export function BookSection({ onFullTimetable }: BookSectionProps) {
                                         BJJ {cls.name}
                                     </h3>
 
-                                    <a
-                                        href="https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={onBookTrial}
                                         className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors"
                                     >
                                         Book this class
                                         <svg className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
                                         </svg>
-                                    </a>
+                                    </button>
                                 </div>
                             );
                         })
