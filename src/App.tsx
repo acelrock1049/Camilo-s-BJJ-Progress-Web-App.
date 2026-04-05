@@ -248,8 +248,10 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                if (card.action === 'expand') {
-                                                    onSpiralOpen();
+                                                if (card.action === 'kids') {
+                                                    onKidsModal();
+                                                } else if (card.action === 'womens') {
+                                                    onWomensModal();
                                                 }
                                             }}
                                             className="px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
