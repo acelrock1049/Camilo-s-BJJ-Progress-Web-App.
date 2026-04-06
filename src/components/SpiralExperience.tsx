@@ -276,8 +276,11 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
 
     const handleResize = () => {
       if (!refs.renderer || !refs.uniforms) return
-      const width = window.innerWidth
-      const height = window.innerHeight
+      const width = window.visualViewport?.width ?? window.innerWidth
+      const height = window.visualViewport?.height ?? window.innerHeight
+      // Set canvas CSS size explicitly to match WebGL resolution
+      canvas.style.width = width + 'px'
+      canvas.style.height = height + 'px'
       refs.renderer.setSize(width, height, false)
       refs.uniforms.resolution.value = [width, height]
     }
@@ -286,10 +289,12 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
       initScene()
       animate()
       window.addEventListener('resize', handleResize)
+      window.visualViewport?.addEventListener('resize', handleResize)
     }
 
     return () => {
       window.removeEventListener('resize', handleResize)
+      window.visualViewport?.removeEventListener('resize', handleResize)
       if (refs.animationId) cancelAnimationFrame(refs.animationId)
       refs.renderer?.dispose()
       refs.scene = null
@@ -305,7 +310,8 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full block z-0"
+      className="fixed top-0 left-0 block z-0"
+      style={{ width: '100%', height: '100dvh' }}
     />
   )
 }
@@ -376,15 +382,14 @@ export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperie
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[9999] bg-[#010101] overflow-hidden font-sans text-white"
+          className="fixed inset-x-0 top-0 z-[9999] bg-[#010101] overflow-hidden font-sans text-white"
+          style={{ height: '100dvh' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Playfair Display font */}
           <style dangerouslySetInnerHTML={{ __html: `
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
             .font-editorial { font-family: 'Playfair Display', serif; }
             @keyframes blindReveal {
               0%   { clip-path: inset(0 0 100% 0); transform: translateY(20px); opacity: 0; }

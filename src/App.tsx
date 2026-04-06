@@ -156,77 +156,74 @@ interface WhoWeHelpCardsProps {
 }
 
 function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensModal, onSpiralOpen }: WhoWeHelpCardsProps) {
-    // Active card tracks hover (desktop) or tap (mobile)
-    const [activeCard, setActiveCard] = useState<number | null>(null);
+    const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
     const handleClick = (idx: number) => {
         const card = WHO_CARDS[idx];
         if (card.action === 'kids')    { onKidsModal();   return; }
         if (card.action === 'womens')  { onWomensModal(); return; }
-        // expand
         setExpandedCard(expandedCard === idx ? null : idx);
-        setActiveCard(idx);
     };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
             {WHO_CARDS.map((card, idx) => {
+                const isHovered  = hoveredCard === idx;
                 const isExpanded = expandedCard === idx && card.action === 'expand';
-                const isActive   = activeCard === idx || isExpanded;
+                // 80% by default, 130% on hover
+                const intensity  = isHovered ? 1.3 : 0.8;
 
                 return (
                     <motion.div
                         key={idx}
                         layoutId={card.action === 'kids' ? 'bjj-kids-card' : card.action === 'womens' ? 'womens-training-card' : undefined}
-                        // Viewport entry animation — once:false re-fires on scroll up too
                         initial={{ opacity: 0, y: 32 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: false, margin: '-60px' }}
                         transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        // Lift on active
-                        animate={{ y: isActive ? -8 : 0 }}
+                        animate={{ y: isHovered ? -8 : 0 }}
                         className={`
                             relative overflow-hidden rounded-3xl border cursor-pointer select-none
                             bg-black/40 backdrop-blur-xl
                             transition-[border-color,box-shadow] duration-300
-                            ${isActive ? card.borderActive : 'border-white/10'}
+                            ${card.borderActive}
                         `}
                         style={{
-                            boxShadow: isActive
-                                ? `0 24px 64px ${card.glowColor}, 0 0 0 1px ${card.glowColor}`
-                                : '0 8px 32px rgba(0,0,0,0.25)',
+                            boxShadow: isHovered
+                                ? `0 28px 72px ${card.glowColor}, 0 0 0 1px ${card.glowColor}`
+                                : `0 16px 48px ${card.glowColor}bb, 0 0 0 1px ${card.glowColor}88`,
                         }}
-                        onMouseEnter={() => setActiveCard(idx)}
-                        onMouseLeave={() => setActiveCard(null)}
+                        onMouseEnter={() => setHoveredCard(idx)}
+                        onMouseLeave={() => setHoveredCard(null)}
                         onClick={() => handleClick(idx)}
                         whileTap={{ scale: 0.985 }}
                     >
-                        {/* Background image — grayscale → color on active */}
+                        {/* Background image — always on, intensity-controlled */}
                         <div
                             className="absolute inset-0 bg-cover bg-center transition-all duration-500"
                             style={{
                                 backgroundImage: `url('${card.img}')`,
-                                opacity: isActive ? 0.55 : 0.25,
-                                filter: isActive ? 'grayscale(0%)' : 'grayscale(80%)',
+                                opacity: Math.min(0.55 * intensity, 1),
+                                filter: `grayscale(${isHovered ? 0 : 20}%)`,
                                 mixBlendMode: 'luminosity',
                             }}
                         />
 
-                        {/* Color glow gradient — fades in on active */}
+                        {/* Color glow gradient — always on, intensity-controlled */}
                         <div
                             className="absolute inset-0 pointer-events-none transition-opacity duration-400"
                             style={{
                                 background: `linear-gradient(to top, ${card.hex}cc, ${card.hex}40 55%, transparent 85%)`,
-                                opacity: isActive ? 1 : 0,
+                                opacity: Math.min(intensity, 1),
                             }}
                         />
 
-                        {/* Accent top bar */}
+                        {/* Accent top bar — always on, intensity-controlled */}
                         <div
                             className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
                             style={{
                                 background: `linear-gradient(to right, ${card.accentFrom}, ${card.accentTo})`,
-                                opacity: isActive ? 1 : 0,
+                                opacity: Math.min(intensity, 1),
                             }}
                         />
 
@@ -301,10 +298,10 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
                             </motion.div>
                         </div>
 
-                        {/* Tap indicator — always visible on mobile, fades on active */}
+                        {/* Tap indicator — subtle hint, hides on hover */}
                         <motion.div
                             className="absolute top-5 right-5"
-                            animate={{ opacity: isActive ? 0 : 0.5 }}
+                            animate={{ opacity: isHovered ? 0 : 0.3 }}
                             transition={{ duration: 0.2 }}
                         >
                             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -833,22 +830,22 @@ function App() {
                 <div className="w-full max-w-md lg:max-w-none lg:w-[40%] relative group mt-16 lg:mt-0 mx-auto lg:mx-0">
                     <div className="relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-700 ease-out group-hover:-translate-y-2 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.2)] bg-gray-100 flex items-center justify-center">
                         {/* The Base Image */}
-                        <img 
-                            src={camiloImg} 
-                            alt="Camilo BJJ Coach" 
-                            className="w-full h-full object-cover object-top grayscale transition-all duration-700 group-hover:scale-105 absolute inset-0"
+                        <img
+                            src={camiloImg}
+                            alt="Camilo BJJ Coach"
+                            className="w-full h-full object-cover object-top transition-all duration-700 group-hover:scale-105 absolute inset-0"
                         />
-                        
+
                         {/* The "Vidrioso Eléctrico" Split Gradient Overlay (Yellow & Turquoise) */}
-                        <div 
-                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-700 mix-blend-color z-10 scale-105"
+                        <div
+                            className="absolute inset-0 transition-[opacity,transform] duration-700 mix-blend-color z-10 scale-105"
                             style={{ background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.8) 0%, rgba(234, 179, 8, 0) 40%, rgba(6, 182, 212, 0) 60%, rgba(6, 182, 212, 0.8) 100%)' }}
                         ></div>
-                        
+
                         {/* Highlighting / Glass Effect Layer */}
-                        <div 
-                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20 pointer-events-none"
-                            style={{ 
+                        <div
+                            className="absolute inset-0 transition-opacity duration-700 z-20 pointer-events-none"
+                            style={{
                                 background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, transparent 50%, rgba(6, 182, 212, 0.2) 100%)',
                                 boxShadow: 'inset 0 0 40px rgba(255,255,255,0.1)'
                             }}
@@ -856,8 +853,8 @@ function App() {
                     </div>
 
                     {/* Decorative Background Elements */}
-                    <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10"></div>
-                    <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-cyan-400/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10"></div>
+                    <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400/30 rounded-full blur-3xl -z-10"></div>
+                    <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-cyan-400/30 rounded-full blur-3xl -z-10"></div>
                 </div>
 
             </div>

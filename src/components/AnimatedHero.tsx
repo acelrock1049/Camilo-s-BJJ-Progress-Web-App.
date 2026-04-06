@@ -18,11 +18,18 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+const SpiralIcon = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+        <path d="M12 12 C12 12, 14 10, 14 8 C14 6, 12 5, 10 6 C8 7, 7 9, 8 11 C9 13, 11 14, 13 14 C15 14, 17 13, 17 11 C17 8, 15 6, 12 5 C9 4, 6 5, 5 8 C4 11, 5 14, 7 16 C9 18, 12 19, 15 18 C18 17, 20 14, 19 11" />
+    </svg>
+);
+
 // ─────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────
 interface AnimatedHeroProps {
     onSurveyOpen: () => void;
+    onSpiralOpen: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -127,7 +134,7 @@ function CtaButton({
 // ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────
-export function AnimatedHero({ onSurveyOpen }: AnimatedHeroProps) {
+export function AnimatedHero({ onSurveyOpen, onSpiralOpen }: AnimatedHeroProps) {
     const taglines = useMemo(() => [
         'Empower Your Life',
         'Flow Through The Chaos',
@@ -266,7 +273,37 @@ export function AnimatedHero({ onSurveyOpen }: AnimatedHeroProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    {/* Button 1 — Instagram */}
+                    {/* Button 1 — Discover your mindset */}
+                    <CtaButton
+                        onClick={onSurveyOpen}
+                        accentFrom="#eab308"
+                        accentTo="#06b6d4"
+                        glowColor="rgba(234,179,8,0.2)"
+                        borderActiveClass="border-yellow-400/50"
+                        bgActiveClass="from-yellow-400/8 to-cyan-400/8"
+                    >
+                        <Brain className="w-5 h-5 shrink-0 text-yellow-500" />
+                        <span className="font-bold tracking-widest text-xs uppercase text-gray-800">
+                            Discover your mindset for BJJ
+                        </span>
+                    </CtaButton>
+
+                    {/* Button 2 — Method (Spiral of Evolution) */}
+                    <CtaButton
+                        onClick={onSpiralOpen}
+                        accentFrom="#a855f7"
+                        accentTo="#6366f1"
+                        glowColor="rgba(168,85,247,0.2)"
+                        borderActiveClass="border-purple-400/50"
+                        bgActiveClass="from-purple-500/8 to-indigo-500/8"
+                    >
+                        <SpiralIcon className="w-5 h-5 shrink-0 text-purple-500" />
+                        <span className="font-bold tracking-widest text-xs uppercase text-gray-800">
+                            Method
+                        </span>
+                    </CtaButton>
+
+                    {/* Button 3 — Instagram */}
                     <CtaButton
                         href="https://www.instagram.com/camilosbjj/"
                         accentFrom="#9333ea"
@@ -281,22 +318,7 @@ export function AnimatedHero({ onSurveyOpen }: AnimatedHeroProps) {
                         </span>
                     </CtaButton>
 
-                    {/* Button 2 — Find your mindset */}
-                    <CtaButton
-                        onClick={onSurveyOpen}
-                        accentFrom="#eab308"
-                        accentTo="#06b6d4"
-                        glowColor="rgba(234,179,8,0.2)"
-                        borderActiveClass="border-yellow-400/50"
-                        bgActiveClass="from-yellow-400/8 to-cyan-400/8"
-                    >
-                        <Brain className="w-5 h-5 shrink-0 text-yellow-500" />
-                        <span className="font-bold tracking-widest text-xs uppercase text-gray-800">
-                            Find your mindset for BJJ
-                        </span>
-                    </CtaButton>
-
-                    {/* Button 3 — WhatsApp */}
+                    {/* Button 4 — WhatsApp */}
                     <CtaButton
                         href="https://wa.me/61489038711"
                         accentFrom="#16a34a"
