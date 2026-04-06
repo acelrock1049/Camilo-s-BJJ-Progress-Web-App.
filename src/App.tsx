@@ -838,22 +838,22 @@ function App() {
                 <div className="w-full max-w-md lg:max-w-none lg:w-[40%] relative group mt-16 lg:mt-0 mx-auto lg:mx-0">
                     <div className="relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-700 ease-out group-hover:-translate-y-2 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.2)] bg-gray-100 flex items-center justify-center">
                         {/* The Base Image */}
-                        <img 
-                            src={camiloImg} 
-                            alt="Camilo BJJ Coach" 
-                            className="w-full h-full object-cover object-top grayscale transition-all duration-700 group-hover:scale-105 absolute inset-0"
+                        <img
+                            src={camiloImg}
+                            alt="Camilo BJJ Coach"
+                            className="w-full h-full object-cover object-top transition-all duration-700 group-hover:scale-105 absolute inset-0"
                         />
-                        
+
                         {/* The "Vidrioso Eléctrico" Split Gradient Overlay (Yellow & Turquoise) */}
-                        <div 
-                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-700 mix-blend-color z-10 scale-105"
+                        <div
+                            className="absolute inset-0 transition-[opacity,transform] duration-700 mix-blend-color z-10 scale-105"
                             style={{ background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.8) 0%, rgba(234, 179, 8, 0) 40%, rgba(6, 182, 212, 0) 60%, rgba(6, 182, 212, 0.8) 100%)' }}
                         ></div>
-                        
+
                         {/* Highlighting / Glass Effect Layer */}
-                        <div 
-                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20 pointer-events-none"
-                            style={{ 
+                        <div
+                            className="absolute inset-0 transition-opacity duration-700 z-20 pointer-events-none"
+                            style={{
                                 background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, transparent 50%, rgba(6, 182, 212, 0.2) 100%)',
                                 boxShadow: 'inset 0 0 40px rgba(255,255,255,0.1)'
                             }}
@@ -861,8 +861,8 @@ function App() {
                     </div>
 
                     {/* Decorative Background Elements */}
-                    <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10"></div>
-                    <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-cyan-400/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10"></div>
+                    <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400/30 rounded-full blur-3xl -z-10"></div>
+                    <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-cyan-400/30 rounded-full blur-3xl -z-10"></div>
                 </div>
 
             </div>

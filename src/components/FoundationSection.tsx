@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 // ─────────────────────────────────────────────────────────────
 
 const CSS = `
-  /* Cards always active/on by default */
+  /* Squircle always active; hover adds scale animation */
   .sq-squircle {
     transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
     background-color: rgba(255,255,255,.95) !important;
@@ -15,13 +15,16 @@ const CSS = `
     box-shadow: 0 0 0 6px var(--sq-glow);
     transform: translateY(-50%) scale(1) !important;
   }
-
-  .sq-card { 
-    transition: box-shadow .35s ease, border-color .35s ease, background-color .35s ease, transform .35s ease; 
-    background-color: rgba(255, 255, 255, 0.85);
+  .sq-card:hover .sq-squircle,
+  .sq-card.sq-active .sq-squircle {
+    transform: translateY(-50%) scale(1.08) !important;
   }
 
-  /* Hover only affects the icon animation (handled via React state) */
+  /* Card: always active background, no lift on hover */
+  .sq-card {
+    transition: box-shadow .35s ease;
+    background-color: rgba(255,255,255,0.85);
+  }
 `;
 
 // ─────────────────────────────────────────────────────────────
@@ -167,7 +170,7 @@ function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
 
     return (
         <div
-            className={`sq-card relative rounded-2xl border backdrop-blur-md cursor-default select-none ${concept.borderActive}`}
+            className={`sq-card relative rounded-2xl border backdrop-blur-md cursor-default select-none ${concept.borderActive} ${isHovered ? 'sq-active' : ''}`}
             style={{
                 height: CARD_H,
                 ['--sq-accent' as string]: concept.accentFrom,
@@ -204,9 +207,9 @@ function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
                     border: `1.5px solid rgba(0,0,0,0.08)`,
                 }}
             >
-                {/* Icon — only animates color/shadow/transform on hover */}
-                <div style={{ color: isHovered ? concept.accentFrom : '#d1d5db', transition: 'color .35s ease' }}>
-                    <Icon active={isHovered} />
+                {/* Icon — always colored/active */}
+                <div style={{ color: concept.accentFrom }}>
+                    <Icon active={true} />
                 </div>
 
                 {/*
