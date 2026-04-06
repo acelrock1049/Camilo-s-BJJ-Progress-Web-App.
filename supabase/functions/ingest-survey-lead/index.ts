@@ -236,7 +236,7 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: "Camilo's BJJ <onboarding@resend.dev>",
+        from: "Camilo de Camilo's BJJ <camilo.coach@camilosbjj.com.au>",
         to: [cleanEmail],
         subject,
         html: emailHtml,

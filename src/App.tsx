@@ -69,6 +69,7 @@ const WHO_CARDS = [
         short: 'Empowerment, real self-defense & community.',
         long: 'We know that taking the first step in martial arts can be intimidating. Discover the warrior within in a completely ego-free space with Paula and Camilo.',
         hex: '#ec4899',
+        rgb: '236,72,153',
         accentFrom: '#ec4899',
         accentTo: '#f43f5e',
         glowColor: 'rgba(236,72,153,0.3)',
@@ -81,6 +82,7 @@ const WHO_CARDS = [
         short: 'Technique over brute force — the "Smart System".',
         long: "You've read the books, you do the habits, but you need a physical crucible. Our curriculum is built on evolution: a progressive framework where every belt represents a new level of physical mastery and psychological growth.",
         hex: '#eab308',
+        rgb: '234,179,8',
         accentFrom: '#eab308',
         accentTo: '#06b6d4',
         glowColor: 'rgba(234,179,8,0.3)',
@@ -93,12 +95,12 @@ const WHO_CARDS = [
         short: 'Building resilient leaders on the mats.',
         long: "Forget traditional \"fight factories\". At Camilo's BJJ, children don't just learn technical self-defense; they learn vital skills for the real world.",
         hex: '#16a34a',
+        rgb: '22,163,74',
         accentFrom: '#16a34a',
         accentTo: '#22c55e',
         glowColor: 'rgba(22,163,74,0.3)',
         borderActive: 'border-green-500/50',
         img: imgBjjKids,
-
         action: 'kids' as const,
     },
 ] as const;
@@ -172,61 +174,64 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
             {WHO_CARDS.map((card, idx) => {
                 const isExpanded = expandedCard === idx && card.action === 'expand';
-                const isActive   = activeCard === idx || isExpanded;
+                const isHovered  = activeCard === idx;
+                
+                // Illumination levels
+                // Base: 80% of original (0.3 -> 0.24 alpha)
+                // Hover: 130% of original (0.3 -> 0.39 alpha)
+                const glowAlpha = isHovered ? 0.39 : 0.24;
+                const imageOpacity = isHovered ? 0.70 : 0.45;
+                const borderAlpha = isHovered ? 0.5 : 0.25;
 
                 return (
                     <motion.div
                         key={idx}
                         layoutId={card.action === 'kids' ? 'bjj-kids-card' : card.action === 'womens' ? 'womens-training-card' : undefined}
-                        // Viewport entry animation — once:false re-fires on scroll up too
                         initial={{ opacity: 0, y: 32 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: false, margin: '-60px' }}
                         transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        // Lift on active
-                        animate={{ y: isActive ? -8 : 0 }}
+                        animate={{ y: isHovered || isExpanded ? -8 : 0 }}
                         className={`
                             relative overflow-hidden rounded-3xl border cursor-pointer select-none
-                            bg-black/40 backdrop-blur-xl
-                            transition-[border-color,box-shadow] duration-300
-                            ${isActive ? card.borderActive : 'border-white/10'}
+                            bg-black/60 backdrop-blur-xl
+                            transition-[border-color,box-shadow,background-color] duration-400
                         `}
                         style={{
-                            boxShadow: isActive
-                                ? `0 24px 64px ${card.glowColor}, 0 0 0 1px ${card.glowColor}`
-                                : '0 8px 32px rgba(0,0,0,0.25)',
+                            borderColor: `rgba(${card.rgb}, ${borderAlpha})`,
+                            boxShadow: `0 24px 64px rgba(${card.rgb}, ${glowAlpha}), 0 0 0 1px rgba(${card.rgb}, ${glowAlpha * 0.5})`,
                         }}
                         onMouseEnter={() => setActiveCard(idx)}
                         onMouseLeave={() => setActiveCard(null)}
                         onClick={() => handleClick(idx)}
                         whileTap={{ scale: 0.985 }}
                     >
-                        {/* Background image — grayscale → color on active */}
+                        {/* Background image — Always in color, but brightness varies */}
                         <div
                             className="absolute inset-0 bg-cover bg-center transition-all duration-500"
                             style={{
                                 backgroundImage: `url('${card.img}')`,
-                                opacity: isActive ? 0.55 : 0.25,
-                                filter: isActive ? 'grayscale(0%)' : 'grayscale(80%)',
+                                opacity: imageOpacity,
+                                filter: isHovered ? 'grayscale(0%) brightness(1.1)' : 'grayscale(0%) brightness(0.9)',
                                 mixBlendMode: 'luminosity',
                             }}
                         />
 
-                        {/* Color glow gradient — fades in on active */}
+                        {/* Color glow gradient — Always visible at different intensities */}
                         <div
-                            className="absolute inset-0 pointer-events-none transition-opacity duration-400"
+                            className="absolute inset-0 pointer-events-none transition-opacity duration-500"
                             style={{
-                                background: `linear-gradient(to top, ${card.hex}cc, ${card.hex}40 55%, transparent 85%)`,
-                                opacity: isActive ? 1 : 0,
+                                background: `linear-gradient(to top, rgba(${card.rgb}, 0.6), rgba(${card.rgb}, 0.2) 55%, transparent 85%)`,
+                                opacity: isHovered ? 1 : 0.7,
                             }}
                         />
 
-                        {/* Accent top bar */}
+                        {/* Accent top bar — Always visible */}
                         <div
                             className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
                             style={{
                                 background: `linear-gradient(to right, ${card.accentFrom}, ${card.accentTo})`,
-                                opacity: isActive ? 1 : 0,
+                                opacity: isHovered ? 1 : 0.6,
                             }}
                         />
 
@@ -304,7 +309,7 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
                         {/* Tap indicator — always visible on mobile, fades on active */}
                         <motion.div
                             className="absolute top-5 right-5"
-                            animate={{ opacity: isActive ? 0 : 0.5 }}
+                            animate={{ opacity: isHovered || isExpanded ? 0 : 0.2 }}
                             transition={{ duration: 0.2 }}
                         >
                             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
