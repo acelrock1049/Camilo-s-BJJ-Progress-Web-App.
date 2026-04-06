@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 // ─────────────────────────────────────────────────────────────
 
 const CSS = `
-  /* Squircle ring pulse — only on hover, card stays still */
+  /* Squircle ring pulse on hover */
   .sq-squircle {
     transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
   }
@@ -16,12 +16,16 @@ const CSS = `
     background-color: rgba(255,255,255,.95) !important;
     border-color: var(--sq-accent) !important;
     box-shadow: 0 0 0 6px var(--sq-glow);
-    transform: translateY(-50%) scale(1.08) !important;
+    transform: translateY(-50%) scale(1.05) !important;
   }
 
-  /* Card: only transition for shadow — no background or lift on hover */
-  .sq-card {
-    transition: box-shadow .35s ease;
+  /* Card border + shadow transition + background */
+  .sq-card { 
+    transition: box-shadow .35s ease, border-color .35s ease, background-color .35s ease, transform .35s ease; 
+  }
+  .sq-card:hover, .sq-card.sq-active {
+     background-color: rgba(255, 255, 255, 0.85);
+     transform: translateY(-2px);
   }
 `;
 
@@ -155,7 +159,7 @@ const CARD_H = 160;    // taller card for wrapped text
 const Y_OFF = 46;      // vertical spread of top/bottom lines
 
 function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
-    const [isHovered, setIsHovered] = useState(false);
+    const [isActive, setIsActive] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const Icon = concept.icon;
 
@@ -166,27 +170,31 @@ function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
         return () => window.removeEventListener('resize', check);
     }, []);
 
-    // Cards are always visually "on". Hover only animates the squircle icon.
+    // Desktop: CSS :hover handles animations; React state only drives icon + border.
+    // Mobile:  click toggles sq-active class → same CSS rules fire.
     return (
         <div
-            className={`sq-card relative rounded-2xl border backdrop-blur-md cursor-default select-none ${concept.borderActive} ${isHovered ? 'sq-active' : ''}`}
+            className={`sq-card relative rounded-2xl border bg-white/50 backdrop-blur-md cursor-default select-none ${isActive ? concept.borderActive : 'border-gray-200/60'} ${isActive ? 'sq-active' : ''}`}
             style={{
                 height: CARD_H,
-                backgroundColor: 'rgba(255,255,255,0.85)',
+                // CSS custom properties for the pure-CSS hover rules
                 ['--sq-accent' as string]: concept.accentFrom,
                 ['--sq-glow'   as string]: concept.glowColor,
-                boxShadow: `0 12px 40px ${concept.glowColor}, 0 0 0 1px ${concept.glowColor}`,
+                boxShadow: isActive
+                    ? `0 12px 40px ${concept.glowColor}, 0 0 0 1px ${concept.glowColor}`
+                    : '0 4px 20px rgba(0,0,0,0.04)',
             }}
-            onMouseEnter={() => !isMobile && setIsHovered(true)}
-            onMouseLeave={() => !isMobile && setIsHovered(false)}
-            onClick={() => isMobile && setIsHovered(v => !v)}
+            onMouseEnter={() => !isMobile && setIsActive(true)}
+            onMouseLeave={() => !isMobile && setIsActive(false)}
+            onClick={() => isMobile && setIsActive(v => !v)}
         >
-            {/* Accent gradient bar — always visible */}
+            {/* Accent gradient bar — top edge */}
             <div
                 className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl pointer-events-none"
                 style={{
                     background: `linear-gradient(to right, ${concept.accentFrom}, ${concept.accentTo})`,
-                    opacity: 1,
+                    opacity: isActive ? 1 : 0,
+                    transition: 'opacity .35s ease',
                 }}
             />
 
@@ -207,9 +215,9 @@ function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
                     border: `1.5px solid rgba(0,0,0,0.08)`,
                 }}
             >
-                {/* Icon — always active/colored */}
-                <div style={{ color: concept.accentFrom }}>
-                    <Icon active={true} />
+                {/* Icon — color driven by React state */}
+                <div style={{ color: isActive ? concept.accentFrom : '#d1d5db', transition: 'color .35s ease' }}>
+                    <Icon active={isActive} />
                 </div>
 
                 {/*

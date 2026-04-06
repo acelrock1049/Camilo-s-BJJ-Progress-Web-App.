@@ -39,15 +39,12 @@ const WEBHOOK_TIMEOUT_MS = 2500;
 
 interface LeadData {
   nombre: string;
-  email: string;
   nivel_experiencia: string;
   objetivo_interes: string;
-  dia_trial: string;
   origen_url: string;
   utm_source: string;
   utm_medium: string;
   utm_campaign: string;
-  source: string;
 }
 
 // ─── Supabase insert (fire-and-forget with timeout) ──────────────────────────
@@ -57,10 +54,9 @@ async function guardarLead(datos: LeadData): Promise<void> {
   const timer = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+    await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
       method: 'POST',
       signal: controller.signal,
-      keepalive: true,
       headers: {
         'Content-Type': 'application/json',
         apikey: SUPABASE_ANON_KEY,
@@ -69,14 +65,8 @@ async function guardarLead(datos: LeadData): Promise<void> {
       },
       body: JSON.stringify(datos),
     });
-    if (!res.ok) {
-      const text = await res.text();
-      console.error('[TrialBookingModal] Supabase insert failed:', res.status, text);
-    } else {
-      console.log('[TrialBookingModal] Lead saved OK');
-    }
-  } catch (err) {
-    console.error('[TrialBookingModal] Fetch error:', err);
+  } catch {
+    // Timeout or network error — continue to WhatsApp anyway
   } finally {
     clearTimeout(timer);
   }
@@ -85,9 +75,9 @@ async function guardarLead(datos: LeadData): Promise<void> {
 // ─── WhatsApp redirect ────────────────────────────────────────────────────────
 
 function redirigirWhatsApp(datos: LeadData): void {
-  const message = `Hi, my name is ${datos.nombre}. I'm a ${datos.nivel_experiencia} and I'm interested in ${datos.objetivo_interes}. I'd like to book a free trial class for ${datos.dia_trial}. My email is ${datos.email}.`;
+  const message = `Hi, my name is ${datos.nombre}. I'm a ${datos.nivel_experiencia} and I'm interested in ${datos.objetivo_interes}. I'd like to book a free trial class.`;
   const url = `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
+  window.location.href = url;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -99,10 +89,8 @@ export interface TrialBookingModalProps {
 
 export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
   const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
   const [nivel, setNivel] = useState('');
   const [objetivo, setObjetivo] = useState('');
-  const [dia, setDia] = useState('');
   const [botField, setBotField] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -113,10 +101,8 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
     if (isOpen) {
       setTimeout(() => firstInputRef.current?.focus(), 120);
       setNombre('');
-      setEmail('');
       setNivel('');
       setObjetivo('');
-      setDia('');
       setBotField('');
       setError('');
       setLoading(false);
@@ -138,7 +124,7 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
     if (botField) return;
 
     // Validation
-    if (!nombre.trim() || !email.trim() || !nivel || !objetivo || !dia) {
+    if (!nombre.trim() || !nivel || !objetivo) {
       setError('Please fill in all fields.');
       return;
     }
@@ -150,15 +136,12 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
     const params = new URLSearchParams(window.location.search);
     const datos: LeadData = {
       nombre: nombre.trim(),
-      email: email.trim(),
       nivel_experiencia: nivel,
       objetivo_interes: objetivo,
-      dia_trial: dia,
       origen_url: window.location.href,
       utm_source: params.get('utm_source') ?? '',
       utm_medium: params.get('utm_medium') ?? '',
       utm_campaign: params.get('utm_campaign') ?? '',
-      source: 'popup',
     };
 
     // Save to Supabase (max 2.5s), then redirect regardless
@@ -220,9 +203,8 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
                   }}>
                     Let's get you on the mats.
                   </h2>
-                  <p style={{ fontSize: 13, color: '#888', marginTop: 6, lineHeight: 1.4 }}>
-                    Takes 20 seconds. Connects you directly to Camilo. <br/>
-                    <strong style={{ color: '#ea580c' }}>100% Free. No costs or commitments.</strong>
+                  <p style={{ fontSize: 13, color: '#888', marginTop: 6 }}>
+                    Takes 20 seconds. Connects you directly to Camilo.
                   </p>
                 </div>
 
@@ -255,20 +237,6 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
                     />
                   </div>
 
-                  {/* Email */}
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={labelStyle}>Your Email</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="e.g. alex@example.com"
-                      style={inputStyle}
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-
                   {/* Experience level */}
                   <div style={{ marginBottom: 14 }}>
                     <label style={labelStyle}>Experience level</label>
@@ -288,7 +256,7 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
                   </div>
 
                   {/* Interest */}
-                  <div style={{ marginBottom: 14 }}>
+                  <div style={{ marginBottom: 20 }}>
                     <label style={labelStyle}>I'm interested in…</label>
                     <select
                       value={objetivo}
@@ -304,24 +272,6 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
                       <option value="Self-Defence">Self-Defence</option>
                       <option value="Competition">Competition</option>
                       <option value="Other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Day Select */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={labelStyle}>Preferred Trial Day</label>
-                    <select
-                      value={dia}
-                      onChange={e => setDia(e.target.value)}
-                      style={{ ...inputStyle, cursor: 'pointer' }}
-                      disabled={loading}
-                      required
-                    >
-                      <option value="">Select a day…</option>
-                      <option value="Tuesday">Tuesday</option>
-                      <option value="Friday">Friday</option>
-                      <option value="Saturday">Saturday</option>
-                      <option value="Sunday">Sunday</option>
                     </select>
                   </div>
 
