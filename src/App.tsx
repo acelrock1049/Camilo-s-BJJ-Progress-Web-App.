@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
-import { Brain, Menu, X } from 'lucide-react';
+import { Network, Menu, X } from 'lucide-react';
 import './index.css';
 import camiloImg from './assets/camilo.jpg';
 import { SurveyModal } from './components/SurveyModal';
@@ -17,6 +17,149 @@ import imgWomens from './assets/paula-camilo.jpeg';
 import imgSelfImprovement from './assets/self-improvement.jpg';
 import imgBjjKids from './assets/bjj-kids-banner.png';
 
+
+// ─────────────────────────────────────────────────────────────
+// HOLISTIC WAVE BUTTON — same energy wave as EvolutionButton
+// Used in "Our Method" section heading
+// ─────────────────────────────────────────────────────────────
+function HolisticWaveButton({ onClick }: { onClick: () => void }) {
+    const [isHovered, setIsHovered] = useState(false);
+    const waveDuration = isHovered ? 1.1 : 2.4;
+    const waveRepeatDelay = isHovered ? 0.05 : 0.6;
+    return (
+        <motion.button
+            onClick={onClick}
+            className="relative rounded-2xl overflow-hidden cursor-pointer select-none border self-start"
+            animate={{
+                backgroundColor: isHovered ? '#0a0a0a' : '#ffffff',
+                borderColor: isHovered ? 'rgba(255,255,255,0.12)' : 'rgba(234,179,8,0.35)',
+                boxShadow: isHovered
+                    ? '0 12px 40px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)'
+                    : '0 6px 28px rgba(234,179,8,0.18), 0 2px 8px rgba(234,179,8,0.10)',
+            }}
+            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            whileTap={{ scale: 0.98 }}
+        >
+            {/* Energy wave band */}
+            <motion.div
+                className="absolute top-0 bottom-0 pointer-events-none"
+                style={{
+                    width: '55%',
+                    background: isHovered
+                        ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.09) 60%, transparent 100%)'
+                        : 'linear-gradient(90deg, transparent 0%, rgba(234,179,8,0.08) 40%, rgba(234,179,8,0.22) 50%, rgba(234,179,8,0.08) 60%, transparent 100%)',
+                    filter: 'blur(3px)',
+                    left: 0,
+                }}
+                animate={{ x: ['-60%', '160%'] }}
+                transition={{ duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay }}
+            />
+            {/* Accent bar — yellow/cyan, always visible */}
+            <div
+                className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
+                style={{ background: 'linear-gradient(to right, #eab308, #06b6d4)' }}
+            />
+            {/* Content */}
+            <div className="relative z-10 px-8 py-5 flex items-center gap-4">
+                <motion.span
+                    className="font-black tracking-widest text-sm md:text-base uppercase"
+                    animate={{
+                        color: isHovered ? '#ffffff' : '#111111',
+                        skewX: [0, -0.9, 0.5, -0.2, 0],
+                    }}
+                    transition={{
+                        color: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
+                        skewX: { duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay },
+                    }}
+                >
+                    Holistic BJJ System
+                </motion.span>
+                <motion.svg
+                    className="w-5 h-5 shrink-0"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    animate={{ color: isHovered ? '#ffffff' : '#eab308', x: isHovered ? 4 : 0 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </motion.svg>
+            </div>
+        </motion.button>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────
+// MINDSET WAVE BUTTON — compact wave button for Who We Help card
+// ~25% of card width, yellow accent, opens SurveyModal
+// ─────────────────────────────────────────────────────────────
+function MindsetWaveButton({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
+    const [isHovered, setIsHovered] = useState(false);
+    const waveDuration = isHovered ? 1.1 : 2.4;
+    const waveRepeatDelay = isHovered ? 0.05 : 0.6;
+    return (
+        <motion.button
+            onClick={onClick}
+            className="relative mt-6 rounded-xl overflow-hidden cursor-pointer select-none border z-20"
+            style={{ alignSelf: 'flex-start' }}
+            animate={{
+                backgroundColor: isHovered ? '#0a0a0a' : '#ffffff',
+                borderColor: isHovered ? 'rgba(255,255,255,0.12)' : 'rgba(234,179,8,0.35)',
+                boxShadow: isHovered
+                    ? '0 8px 28px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.06)'
+                    : '0 4px 20px rgba(234,179,8,0.22), 0 2px 6px rgba(234,179,8,0.12)',
+            }}
+            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            whileTap={{ scale: 0.97 }}
+        >
+            {/* Energy wave band */}
+            <motion.div
+                className="absolute top-0 bottom-0 pointer-events-none"
+                style={{
+                    width: '55%',
+                    background: isHovered
+                        ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.09) 60%, transparent 100%)'
+                        : 'linear-gradient(90deg, transparent 0%, rgba(234,179,8,0.08) 40%, rgba(234,179,8,0.24) 50%, rgba(234,179,8,0.08) 60%, transparent 100%)',
+                    filter: 'blur(2px)',
+                    left: 0,
+                }}
+                animate={{ x: ['-60%', '160%'] }}
+                transition={{ duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay }}
+            />
+            {/* Accent bar — yellow */}
+            <div
+                className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
+                style={{ background: 'linear-gradient(to right, #eab308, #f59e0b)' }}
+            />
+            {/* Content */}
+            <div className="relative z-10 px-4 py-2.5 flex items-center gap-2">
+                <motion.span
+                    className="font-black tracking-widest text-[10px] uppercase whitespace-nowrap"
+                    animate={{
+                        color: isHovered ? '#ffffff' : '#111111',
+                        skewX: [0, -0.9, 0.5, -0.2, 0],
+                    }}
+                    transition={{
+                        color: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
+                        skewX: { duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay },
+                    }}
+                >
+                    Discover your mindset for BJJ
+                </motion.span>
+                <motion.svg
+                    className="w-3 h-3 shrink-0"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    animate={{ color: isHovered ? '#ffffff' : '#eab308', x: isHovered ? 3 : 0 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </motion.svg>
+            </div>
+        </motion.button>
+    );
+}
 
 const BeltMandala = () => {
     return (
@@ -186,7 +329,6 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
                 return (
                     <motion.div
                         key={idx}
-                        layoutId={card.action === 'kids' ? 'bjj-kids-card' : card.action === 'womens' ? 'womens-training-card' : undefined}
                         initial={{ opacity: 0, y: 32 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: false, margin: '-60px' }}
@@ -280,28 +422,9 @@ function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensMo
                                     )}
                                 </motion.div>
 
-                                {/* Always visible pulsating button for Self Improvement Seekers */}
+                                {/* Wave button for Self Improvement Seekers → opens SpiralExperience */}
                                 {card.action === 'expand' && (
-                                    <motion.button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onSpiralOpen();
-                                        }}
-                                        animate={{
-                                            boxShadow: [
-                                                "0 0 10px rgba(234,179,8,0)",
-                                                "0 0 30px rgba(234,179,8,0.8)",
-                                                "0 0 10px rgba(234,179,8,0)"
-                                            ]
-                                        }}
-                                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                                        className="mt-6 px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 hover:bg-gray-100 hover:scale-105 transition-all cursor-pointer z-20 self-start group"
-                                    >
-                                        Discover It
-                                        <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                        </svg>
-                                    </motion.button>
+                                    <MindsetWaveButton onClick={(e) => { e.stopPropagation(); onSpiralOpen(); }} />
                                 )}
                             </motion.div>
                         </div>
@@ -502,8 +625,17 @@ function App() {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
+    // Pause rendering when canvas is off-screen
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisible = entry.isIntersecting; },
+      { threshold: 0 }
+    );
+    if (mountRef.current) observer.observe(mountRef.current);
+
     const animate = (now: number) => {
       animationFrameId = requestAnimationFrame(animate);
+      if (!isVisible || document.hidden) return;
       if (now - lastFrameTime < fpsInterval) return;
       lastFrameTime = now;
       dnaGroup.rotation.y += 0.002;
@@ -523,6 +655,7 @@ function App() {
 
     const currentMount = mountRef.current;
     return () => {
+      observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
@@ -591,9 +724,9 @@ function App() {
                 <button
                     onClick={() => setShowSurveyModal(true)}
                     className="hover:text-yellow-500 transition-colors"
-                    title="Find your mindset for BJJ"
+                    title="Discover your mindset"
                 >
-                    <Brain className="w-4 h-4" />
+                    <Network className="w-4 h-4" />
                 </button>
             </motion.nav>
 
@@ -616,9 +749,9 @@ function App() {
                     className="p-2 rounded-full bg-yellow-400 text-neutral-900 shadow-md"
                     style={{ opacity: headerBgOpacity }}
                     whileTap={{ scale: 0.92 }}
-                    title="Find your mindset for BJJ"
+                    title="Discover your mindset"
                 >
-                    <Brain className="w-4 h-4" />
+                    <Network className="w-4 h-4" />
                 </motion.button>
                 {/* Hamburger — always visible, toggles nav dropdown */}
                 <motion.button
@@ -666,8 +799,8 @@ function App() {
                             onClick={() => { setShowSurveyModal(true); setShowMobileMenu(false); }}
                             className="flex items-center gap-3 text-sm font-bold tracking-widest uppercase text-yellow-600 hover:text-yellow-500 transition-colors"
                         >
-                            <Brain className="w-4 h-4" />
-                            Find Your Mindset
+                            <Network className="w-4 h-4" />
+                            Discover your mindset
                         </button>
                     </motion.div>
                 )}
@@ -675,7 +808,7 @@ function App() {
         </header>
 
         {/* ── Hero Section ── */}
-        <AnimatedHero onSurveyOpen={() => setShowSurveyModal(true)} />
+        <AnimatedHero onSurveyOpen={() => setShowSurveyModal(true)} onSpiralOpen={() => setShowSpiralExperience(true)} onBookingOpen={() => setShowTrialModal(true)} />
 
         {/* ── Separator: Hero → Who We Help ── */}
         <div className="section-divider mx-8 md:mx-24" />
@@ -731,7 +864,7 @@ function App() {
         </section>
 
         {/* ── Foundation Section ── */}
-        <FoundationSection />
+        <FoundationSection onSpiralOpen={() => setShowSpiralExperience(true)} />
 
         {/* ── Separator: Foundation → Survey Banner ── */}
         <div className="section-divider" />
@@ -744,7 +877,7 @@ function App() {
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between relative z-10 gap-8">
                 <div className="text-left w-full md:w-3/4">
                     <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4 font-editorial drop-shadow-lg">
-                        Discover your Psychological Belt
+                        Discover your mindset
                     </h3>
                     <p className="text-gray-400 text-lg md:text-xl font-light">
                         Take this 2-minute assessment to map your current mental framework and see how you approach challenges on and off the mats.
@@ -786,14 +919,12 @@ function App() {
                         <div className="h-[1px] bg-gray-900/20 flex-grow"></div>
                     </div>
                     
-                    <h2 className="flex flex-col relative z-10 select-none mb-10">
-                        <span className="font-sans font-black text-4xl md:text-5xl lg:text-6xl tracking-tighter text-gray-900 uppercase leading-none mb-2">
-                            Holistic BJJ System:
-                        </span>
-                        <span className="font-serif italic text-3xl md:text-4xl text-gray-500 font-normal leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <div className="flex flex-col relative z-10 mb-10">
+                        <HolisticWaveButton onClick={() => setShowSpiralExperience(true)} />
+                        <span className="font-serif italic text-3xl md:text-4xl text-gray-500 font-normal leading-tight mt-4" style={{ fontFamily: "'Playfair Display', serif" }}>
                             Where intelligence defeats giants
                         </span>
-                    </h2>
+                    </div>
 
                     <p className="text-gray-600 font-light text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
                         This isn't a regular fight gym — it's a <strong className="font-semibold text-gray-900">Personal Engineering Lab</strong>. We use Jiu-Jitsu as a vehicle to teach strategy, leverage, and mental resilience.
@@ -1184,17 +1315,15 @@ function App() {
                             </svg>
                         </a>
 
-                        <a
-                            href="https://wa.me/61489038711"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={() => setShowTrialModal(true)}
                             className="inline-flex items-center gap-3 px-10 py-5 border border-gray-200 bg-white/70 backdrop-blur-md text-gray-700 font-bold tracking-widest text-sm uppercase hover:bg-white hover:border-green-400 hover:text-green-700 transition-all duration-300 rounded-sm shadow-sm"
                         >
                             <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                             </svg>
                             Ask a question
-                        </a>
+                        </button>
                     </motion.div>
 
                     {/* Zero-risk micro-copy */}
@@ -1240,7 +1369,6 @@ function App() {
 }
 
 const KidsModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-    // Esc key support
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
         window.addEventListener('keydown', handleEsc);
@@ -1250,130 +1378,119 @@ const KidsModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
-            {/* Backdrop */}
-            <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-black/60 backdrop-blur-md cursor-pointer"
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="absolute inset-0 bg-black/55 backdrop-blur-sm cursor-pointer"
                 onClick={onClose}
-            ></motion.div>
-
-            {/* Modal Container */}
-            <motion.div 
-                layoutId="bjj-kids-card"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-3xl overflow-y-auto shadow-2xl flex flex-col z-10"
+            />
+            <motion.div
+                initial={{ opacity: 0, scale: 0.93, y: 18 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.97, y: 8 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.8 }}
+                className="relative w-full max-w-5xl z-10 rounded-3xl shadow-2xl overflow-hidden"
+                style={{ maxHeight: '92vh' }}
             >
-                {/* Header Image Area */}
-                <div className="relative w-full h-48 md:h-64 bg-green-900 overflow-hidden shrink-0 rounded-t-3xl">
-                    <img 
-                        src="/src/assets/bjj-kids-banner.png" 
-                        alt="BJJ Kids Training" 
-                        className="w-full h-full object-cover opacity-80"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-green-900/90 to-transparent"></div>
-                    <button 
-                        onClick={onClose}
-                        className="absolute top-4 border border-white/20 right-4 p-2 bg-black/20 hover:bg-black/40 backdrop-blur-md text-white rounded-full transition-all"
-                    >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                    
-                    <div className="absolute bottom-6 left-6 md:left-10 text-white">
-                        <span className="inline-block px-3 py-1 bg-green-500/80 backdrop-blur-sm rounded-full text-xs font-bold tracking-widest uppercase mb-3 text-white">BJJ Development Programme</span>
-                        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-tighter leading-none mb-1 shadow-black/50 drop-shadow-lg">
-                            BJJ Kids
-                        </h2>
-                        <p className="font-serif italic text-green-100 text-lg md:text-xl drop-shadow max-w-xl">
-                            Building resilient leaders on the mats.
-                        </p>
-                    </div>
-                </div>
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 z-50 p-2 bg-black/25 hover:bg-black/45 backdrop-blur-md text-white rounded-full border border-white/20 transition-all"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
 
-                {/* Content Area */}
-                <div className="p-6 md:p-10 flex-col gap-12 flex text-gray-800">
-                    
-                    {/* Intro / Philosophy */}
-                    <div className="max-w-4xl border-l-4 border-green-500 pl-6">
-                        <h3 className="text-sm font-bold text-gray-400 tracking-widest uppercase mb-2">Our Philosophy (The Why)</h3>
-                        <p className="text-lg md:text-xl font-light text-gray-700 leading-relaxed mb-4">
-                            <strong className="text-gray-900">Play is the vehicle.</strong> We translate the complexity of Jiu-Jitsu into the language of children through stories and fun challenges. Instead of rigid drills, kids learn to defend themselves while navigating <strong className="text-green-600">The floor is lava</strong>, protecting <strong className="text-green-600">The Guard Rock</strong>, or escaping <strong className="text-green-600">The Mount Island</strong>.
-                        </p>
+                {/* Scrollable inner — isolated scroll, no overflow on animated element */}
+                <div className="modal-scroll overflow-y-auto overscroll-contain bg-white flex flex-col" style={{ maxHeight: '92vh' }}>
+
+                    {/* Header image */}
+                    <div className="relative w-full h-44 md:h-52 bg-green-900 shrink-0">
+                        <img src={imgBjjKids} alt="BJJ Kids Training" className="w-full h-full object-cover opacity-80" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-green-950/95 via-green-900/40 to-transparent" />
+                        <div className="absolute bottom-5 left-6 md:left-8 text-white">
+                            <span className="inline-block px-3 py-1 bg-green-500/75 backdrop-blur-sm rounded-full text-[10px] font-bold tracking-widest uppercase mb-2">
+                                BJJ Development Programme
+                            </span>
+                            <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tighter leading-none drop-shadow-lg">BJJ Kids</h2>
+                            <p className="font-serif italic text-green-100 text-base drop-shadow">Building resilient leaders on the mats.</p>
+                        </div>
                     </div>
 
-                    {/* Emotional Development Traffic Light */}
-                    <div>
-                        <h3 className="text-sm font-bold text-gray-400 tracking-widest uppercase mb-6">Emotional Development (Conscious Discipline)</h3>
-                        <div className="bg-gray-50 rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col md:flex-row gap-8 items-center">
-                            
-                            {/* Traffic Light Graphic */}
-                            <div className="bg-gray-900 rounded-full py-4 px-3 flex md:flex-col gap-4 shadow-xl border-4 border-gray-800 shrink-0">
-                                <div className="w-10 h-10 rounded-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)] border-2 border-red-700"></div>
-                                <div className="w-10 h-10 rounded-full bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)] border-2 border-yellow-600"></div>
-                                <div className="w-10 h-10 rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)] border-2 border-green-700"></div>
-                            </div>
-                            
-                            <div className="flex-1 space-y-6">
-                                <p className="text-lg text-gray-600 leading-relaxed italic">
-                                    "We help kids navigate frustration ('losing is learning') and transition from survival reactions to a focussed and secure state of mind."
+                    {/* Content — 2-col grid on desktop */}
+                    <div className="p-5 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 text-gray-800">
+
+                        {/* LEFT col */}
+                        <div className="flex flex-col gap-5">
+                            <div className="border-l-4 border-green-500 pl-5 py-1">
+                                <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1.5">Our Philosophy — The Why</h3>
+                                <p className="text-sm font-light text-gray-700 leading-relaxed">
+                                    <strong className="text-gray-900">Play is the vehicle.</strong> We translate Jiu-Jitsu into the language of children through stories and challenges: navigating{' '}
+                                    <strong className="text-green-600">The Floor is Lava</strong>, protecting <strong className="text-green-600">The Guard Rock</strong>, or escaping <strong className="text-green-600">The Mount Island</strong>.
                                 </p>
-                                
-                                <div className="space-y-4">
-                                    <div className="flex gap-4 items-start">
-                                        <div className="mt-1 w-3 h-3 rounded-full bg-red-500 shadow-sm shrink-0"></div>
-                                        <div><strong className="text-gray-900 block">Survival (Red)</strong><span className="text-sm text-gray-600">Fight, flight, or freeze reactions to stress.</span></div>
-                                    </div>
-                                    <div className="flex gap-4 items-start">
-                                        <div className="mt-1 w-3 h-3 rounded-full bg-yellow-400 shadow-sm shrink-0"></div>
-                                        <div><strong className="text-gray-900 block">Emotion (Yellow)</strong><span className="text-sm text-gray-600">Expressing frustration or excitement. Need for connection.</span></div>
-                                    </div>
-                                    <div className="flex gap-4 items-start">
-                                        <div className="mt-1 w-3 h-3 rounded-full bg-green-500 shadow-sm shrink-0"></div>
-                                        <div><strong className="text-gray-900 block">Learning (Green)</strong><span className="text-sm text-gray-600">Focussed, secure, and ready to solve problems constructively.</span></div>
-                                    </div>
-                                </div>
                             </div>
 
-                        </div>
-                    </div>
-
-                    {/* Class Anatomy List */}
-                    <div className="bg-gray-900 rounded-3xl p-8 md:p-10 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-                        <h3 className="text-sm font-bold text-green-400 tracking-widest uppercase mb-2 relative z-10">A clear structure for learning</h3>
-                        <h4 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-8 relative z-10">The Anatomy of a Class (The What)</h4>
-                        
-                        <div className="space-y-6 relative z-10">
-                            {[
-                                { title: '1. Connection & Animal Movements (Warm-up)', desc: 'Building physical literacy and group cohesion.' },
-                                { title: '2. Thematic Skill Games', desc: 'Translating complex Jiu-Jitsu techniques into fun, objective-based challenges.' },
-                                { title: "3. Exploration (Safe 'Starting Points')", desc: 'Controlled, playful sparring scenarios where kids can test techniques safely.' },
-                                { title: '4. Reflection & Cool Down', desc: 'Breathing exercises and discussing the lessons learned on the mat.' }
-                            ].map((step, i) => (
-                                <div key={i} className="flex gap-4 items-start border-b border-gray-800 pb-4 last:border-0 last:pb-0">
-                                    <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center font-bold shrink-0 mt-1">
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+                            <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                                <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-4">Emotional Development</h3>
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="bg-gray-900 rounded-full px-2 py-1.5 flex gap-2 shadow-lg border-2 border-gray-800 shrink-0">
+                                        <div className="w-6 h-6 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.7)]" />
+                                        <div className="w-6 h-6 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.7)]" />
+                                        <div className="w-6 h-6 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.7)]" />
                                     </div>
-                                    <div>
-                                        <h5 className="font-bold text-green-100 text-lg mb-1">{step.title}</h5>
-                                        <p className="text-gray-400 text-sm font-light leading-relaxed">{step.desc}</p>
-                                    </div>
+                                    <p className="text-xs text-gray-500 italic leading-snug">"Losing is learning — from survival to a focussed, secure state of mind."</p>
                                 </div>
-                            ))}
+                                <div className="space-y-2.5">
+                                    {[
+                                        { color: 'bg-red-500',    label: 'Survival (Red)',    desc: 'Fight, flight, or freeze under stress.' },
+                                        { color: 'bg-yellow-400', label: 'Emotion (Yellow)',  desc: 'Frustration or excitement — need for connection.' },
+                                        { color: 'bg-green-500',  label: 'Learning (Green)', desc: 'Focussed, secure, ready to solve problems.' },
+                                    ].map(({ color, label, desc }) => (
+                                        <div key={label} className="flex gap-3 items-start">
+                                            <div className={`mt-1 w-2.5 h-2.5 rounded-full ${color} shrink-0`} />
+                                            <div>
+                                                <strong className="text-gray-900 text-xs block">{label}</strong>
+                                                <span className="text-xs text-gray-500">{desc}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RIGHT col — Class Anatomy */}
+                        <div className="bg-gray-900 rounded-2xl p-6 text-white relative overflow-hidden flex flex-col">
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-green-500/15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+                            <div className="relative z-10 flex-1">
+                                <h3 className="text-[10px] font-bold text-green-400 tracking-widest uppercase mb-1">A clear structure for learning</h3>
+                                <h4 className="text-lg font-black uppercase tracking-tight mb-5">Anatomy of a Class</h4>
+                                <div className="space-y-4">
+                                    {[
+                                        { n: '01', title: 'Connection & Animal Movements', desc: 'Physical literacy and group cohesion.' },
+                                        { n: '02', title: 'Thematic Skill Games',          desc: 'Complex techniques as fun, objective-based challenges.' },
+                                        { n: '03', title: 'Exploration — Safe Starting Points', desc: 'Controlled, playful sparring scenarios.' },
+                                        { n: '04', title: 'Reflection & Cool Down',         desc: 'Breathing and lessons from the mat.' },
+                                    ].map(({ n, title, desc }) => (
+                                        <div key={n} className="flex gap-3 items-start border-b border-gray-800/70 pb-3 last:border-0 last:pb-0">
+                                            <span className="text-green-500/60 font-black text-xs w-5 shrink-0 mt-0.5">{n}</span>
+                                            <div>
+                                                <h5 className="font-bold text-green-100 text-sm leading-snug mb-0.5">{title}</h5>
+                                                <p className="text-gray-400 text-xs font-light">{desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <button className="relative z-10 mt-6 w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl text-white font-bold uppercase tracking-widest text-xs shadow-lg shadow-green-900/40 transition-all hover:scale-[1.02]">
+                                Schedule a Free Diagnostics Class
+                            </button>
                         </div>
                     </div>
 
-                    {/* CTA Action */}
-                    <div className="text-center pt-4 pb-2">
-                        <button className="bg-green-600 hover:bg-green-500 px-8 py-4 rounded-full text-white font-bold uppercase tracking-widest shadow-lg shadow-green-600/30 transition-all hover:scale-105 hover:shadow-green-600/50 w-full sm:w-auto">
-                            👉 Schedule a Free Diagnostics Class
-                        </button>
-                        <p className="text-gray-400 text-xs italic mt-4">We start with a friendly session. No pressure, just connection.</p>
-                    </div>
-
+                    <p className="text-center text-gray-400 text-xs italic pb-6 px-8">We start with a friendly session. No pressure, just connection.</p>
                 </div>
             </motion.div>
         </div>
@@ -1381,7 +1498,6 @@ const KidsModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }
 };
 
 const WomensModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-    // Esc key support
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
         window.addEventListener('keydown', handleEsc);
@@ -1391,119 +1507,114 @@ const WomensModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-            {/* Backdrop */}
-            <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-black/80 backdrop-blur-xl cursor-pointer"
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"
                 onClick={onClose}
-            ></motion.div>
-
-            {/* Modal Container */}
-            <motion.div 
-                layoutId="womens-training-card"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="relative bg-white w-full max-w-6xl max-h-[90vh] rounded-[2rem] overflow-y-auto shadow-2xl ring-1 ring-black/5 flex flex-col z-10"
+            />
+            <motion.div
+                initial={{ opacity: 0, scale: 0.93, y: 18 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.97, y: 8 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.8 }}
+                className="relative w-full max-w-5xl z-10 rounded-[2rem] shadow-2xl overflow-hidden ring-1 ring-black/5"
+                style={{ maxHeight: '92vh' }}
             >
-                <button 
+                <button
                     onClick={onClose}
-                    className="absolute top-6 border border-gray-200 right-6 p-2 bg-gray-100/40 hover:bg-gray-100 backdrop-blur-md text-gray-900 rounded-full transition-all z-50"
+                    className="absolute top-5 right-5 z-50 p-2 bg-gray-100/60 hover:bg-gray-100 backdrop-blur-md text-gray-900 rounded-full border border-gray-200 transition-all"
                 >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
 
-                <div className="px-6 pb-8 md:px-12 md:pb-16 pt-12 md:pt-16">
-                    {/* Tag & Headings */}
-                    <div className="mb-14 outline-none">
-                        <span className="inline-block px-5 py-2 rounded-full bg-pink-500/10 text-pink-500 text-sm font-bold tracking-widest uppercase mb-8 border border-pink-500/20">
-                            🛡️ Your Safe Space
-                        </span>
-                        <h3 className="text-4xl md:text-6xl font-black text-gray-900 italic capitalize mb-8 max-w-3xl leading-tight">
-                            Awaken your strength.<br/>Train without fear.
-                        </h3>
-                        <p className="text-gray-600 font-light text-xl md:text-2xl leading-relaxed max-w-4xl border-l-[3px] border-pink-500/50 pl-6 py-2">
-                             "We know that taking the first step in martial arts can be intimidating. That's why at Camilo's BJJ, we've created an environment where you can lower your emotional guard so you can raise your physical one. Guided by Paula and Camilo, we invite you to discover the warrior within in a completely ego-free space."
-                        </p>
-                    </div>
+                {/* Scrollable inner */}
+                <div className="modal-scroll overflow-y-auto overscroll-contain bg-white" style={{ maxHeight: '92vh' }}>
+                    <div className="px-6 pb-8 md:px-10 md:pb-12 pt-10 md:pt-12">
 
-                    {/* Content Grid (Left: Image, Right: Pillars) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-                        
-                        {/* Left: Image with Testimonial */}
-                        <div className="lg:col-span-5 relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden group">
-                            <div className="absolute inset-0 bg-pink-900/30 mix-blend-overlay z-10 transition-opacity duration-700 group-hover:opacity-10"></div>
-                            <img 
-                                src="/paula-camilo.jpeg" 
-                                alt="Paula and Camilo coaching" 
-                                className="w-full h-full object-cover transition-all duration-[1.5s] ease-out hover:scale-105" 
-                            />
-                            
-                            {/* Floating Quote */}
-                            <div className="absolute bottom-6 left-6 right-6 bg-white/80 backdrop-blur-xl border border-gray-200 p-6 rounded-2xl z-20 shadow-2xl transition-all duration-700">
-                                <div className="flex gap-1 mb-3 text-yellow-500">
-                                    <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
-                                </div>
-                                <p className="text-gray-900 font-medium italic text-base md:text-lg mb-4 leading-relaxed">
-                                    "The environment is safe for women to pick up self defence skills in a supportive and respectful community too"
-                                </p>
-                                <p className="text-pink-600 text-xs md:text-sm font-bold tracking-widest uppercase">
-                                    Nat. <span className="text-gray-400 px-2">|</span> Docklands Resident
-                                </p>
-                            </div>
+                        {/* Header */}
+                        <div className="mb-8">
+                            <span className="inline-block px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-500 text-xs font-bold tracking-widest uppercase mb-5 border border-pink-500/20">
+                                Your Safe Space
+                            </span>
+                            <h3 className="text-3xl md:text-5xl font-black text-gray-900 italic capitalize mb-5 leading-tight">
+                                Awaken your strength.<br />Train without fear.
+                            </h3>
+                            <p className="text-gray-600 font-light text-base md:text-lg leading-relaxed max-w-3xl border-l-[3px] border-pink-500/50 pl-5 py-1">
+                                "We've created an environment where you can lower your emotional guard so you can raise your physical one. Guided by Paula and Camilo — a completely ego-free space."
+                            </p>
                         </div>
 
-                        {/* Right: Pillars & CTAs */}
-                        <div className="lg:col-span-7 flex flex-col justify-center">
-                            <div className="space-y-12">
-                                {/* Pillar 1 */}
-                                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                                    <div className="shrink-0 w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-pink-500 mt-1">
-                                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                    </div>
-                                    <div className="text-left">
-                                        <h4 className="text-2xl font-bold text-gray-900 mb-3 tracking-wide">Empathetic Leadership</h4>
-                                        <p className="text-gray-600 text-lg leading-relaxed">
-                                            Train under the expert guidance of Paula and Camilo. Having both a female and male presence guarantees an environment of absolute respect and careful technical instruction.
-                                        </p>
-                                    </div>
-                                </div>
-                                {/* Pillar 2 */}
-                                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                                    <div className="shrink-0 w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-pink-500 mt-1">
-                                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                    </div>
-                                    <div className="text-left">
-                                        <h4 className="text-2xl font-bold text-gray-900 mb-3 tracking-wide">Unshakeable Confidence</h4>
-                                        <p className="text-gray-600 text-lg leading-relaxed">
-                                            Learn real self-defense and biomechanics. Experience the peace of mind that comes from knowing exactly how to protect yourself and move through the world with total confidence.
-                                        </p>
-                                    </div>
-                                </div>
-                                {/* Pillar 3 */}
-                                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                                    <div className="shrink-0 w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-pink-500 mt-1">
-                                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                    </div>
-                                    <div className="text-left">
-                                        <h4 className="text-2xl font-bold text-gray-900 mb-3 tracking-wide">Warrior Community</h4>
-                                        <p className="text-gray-600 text-lg leading-relaxed">
-                                            We are more than just a gym in Docklands; we are a tribe. Build genuine friendships with women who actively support each other in becoming their best selves.
-                                        </p>
-                                    </div>
+                        {/* Content grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+
+                            {/* Left: Image */}
+                            <div className="lg:col-span-5 relative w-full aspect-[4/5] rounded-2xl overflow-hidden">
+                                <div className="absolute inset-0 bg-pink-900/20 mix-blend-overlay z-10" />
+                                <img src={imgWomens} alt="Paula and Camilo coaching" className="w-full h-full object-cover" />
+                                <div className="absolute bottom-4 left-4 right-4 bg-white/85 backdrop-blur-xl border border-gray-200 p-4 rounded-xl z-20 shadow-xl">
+                                    <div className="flex gap-0.5 mb-2 text-yellow-500 text-sm">{'⭐'.repeat(5)}</div>
+                                    <p className="text-gray-900 font-medium italic text-sm leading-snug mb-2">
+                                        "The environment is safe for women to pick up self defence skills in a supportive and respectful community."
+                                    </p>
+                                    <p className="text-pink-600 text-[11px] font-bold tracking-widest uppercase">
+                                        Nat. <span className="text-gray-400 px-1">|</span> Docklands Resident
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Actions */}
-                            <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center gap-6">
-                                <button className="w-full sm:w-auto px-8 py-5 bg-gray-900 text-white font-bold tracking-widest text-sm uppercase hover:bg-black transition-colors rounded-sm shadow-xl shrink-0">
-                                    Claim Your 1-Week Free Trial
-                                </button>
-                                <a href="https://wa.me/message/YOUR_WHATSAPP_LINK" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-5 bg-transparent text-gray-900 border border-gray-200 font-bold tracking-widest text-sm uppercase hover:bg-gray-50 hover:border-pink-500/50 hover:text-pink-600 transition-all rounded-sm flex justify-center items-center gap-2">
-                                    💬 Chat with Paula
-                                </a>
+                            {/* Right: Pillars */}
+                            <div className="lg:col-span-7">
+                                <div className="space-y-4">
+                                    {[
+                                        {
+                                            d: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+                                            title: 'Empathetic Leadership',
+                                            desc: 'Train under Paula and Camilo. A female and male presence guarantees absolute respect and careful technical instruction.',
+                                        },
+                                        {
+                                            d: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+                                            title: 'Unshakeable Confidence',
+                                            desc: 'Learn real self-defense and biomechanics. Move through the world knowing exactly how to protect yourself.',
+                                        },
+                                        {
+                                            d: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+                                            title: 'Warrior Community',
+                                            desc: 'More than a gym — a tribe. Build genuine friendships with women who actively support each other becoming their best selves.',
+                                        },
+                                    ].map(({ d, title, desc }) => (
+                                        <div key={title} className="flex gap-4 items-start p-4 rounded-xl border border-gray-100 bg-gray-50/50">
+                                            <div className="shrink-0 w-10 h-10 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-pink-500">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={d} />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-base font-bold text-gray-900 mb-1">{title}</h4>
+                                                <p className="text-gray-600 text-sm leading-relaxed font-light">{desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-stretch gap-3">
+                                    <button className="flex-1 px-6 py-4 bg-gray-900 text-white font-bold tracking-widest text-xs uppercase hover:bg-black transition-colors rounded-lg shadow-lg">
+                                        Claim Your 1-Week Free Trial
+                                    </button>
+                                    <a
+                                        href="https://wa.me/61489038711"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 px-6 py-4 bg-transparent text-gray-900 border border-gray-200 font-bold tracking-widest text-xs uppercase hover:bg-gray-50 hover:border-pink-400/60 hover:text-pink-600 transition-all rounded-lg flex justify-center items-center gap-2"
+                                    >
+                                        Chat with Paula
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

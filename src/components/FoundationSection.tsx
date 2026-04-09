@@ -286,7 +286,7 @@ function SquircleCard({ concept }: { concept: typeof CONCEPTS[number] }) {
 // SECTION
 // ─────────────────────────────────────────────────────────────
 
-export function FoundationSection() {
+export function FoundationSection({ onSpiralOpen }: { onSpiralOpen?: () => void }) {
     return (
         <section className="relative z-20 w-full px-6 md:px-24 pt-14 pb-16 md:pt-18 md:pb-20">
 
@@ -322,27 +322,50 @@ export function FoundationSection() {
               No layout shift — card height never changes.
             */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {CONCEPTS.map((concept, i) => (
-                    <motion.div
-                        key={concept.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-60px' }}
-                        transition={{ duration: 0.55, delay: i * 0.09, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                        {/* Concept label */}
-                        <div className="mb-3 px-1">
-                            <span className="block text-[9px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-0.5">
-                                {concept.subtitle}
-                            </span>
-                            <h3 className="font-black text-sm md:text-[15px] uppercase tracking-tight text-gray-900 leading-none">
-                                {concept.title}
-                            </h3>
-                        </div>
+                {CONCEPTS.map((concept, i) => {
+                    const isHolistic = concept.id === 'holistic' && !!onSpiralOpen;
+                    const inner = (
+                        <>
+                            {/* Concept label */}
+                            <div className="mb-3 px-1">
+                                <span className="block text-[9px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-0.5">
+                                    {concept.subtitle}
+                                </span>
+                                <h3 className={`font-black text-sm md:text-[15px] uppercase tracking-tight leading-none ${isHolistic ? 'text-yellow-600' : 'text-gray-900'}`}>
+                                    {concept.title}
+                                    {isHolistic && (
+                                        <span className="ml-2 inline-block text-[8px] font-bold tracking-[0.2em] uppercase text-yellow-500 border border-yellow-400/50 rounded px-1 py-0.5 align-middle">
+                                            Explore →
+                                        </span>
+                                    )}
+                                </h3>
+                            </div>
 
-                        <SquircleCard concept={concept} />
-                    </motion.div>
-                ))}
+                            <SquircleCard concept={concept} />
+                        </>
+                    );
+                    return (
+                        <motion.div
+                            key={concept.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: '-60px' }}
+                            transition={{ duration: 0.55, delay: i * 0.09, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                            {isHolistic ? (
+                                <button
+                                    onClick={onSpiralOpen}
+                                    className="block w-full text-left group"
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                >
+                                    {inner}
+                                </button>
+                            ) : (
+                                <div>{inner}</div>
+                            )}
+                        </motion.div>
+                    );
+                })}
             </div>
         </section>
     );

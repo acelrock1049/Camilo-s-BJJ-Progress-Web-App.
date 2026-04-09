@@ -20,6 +20,8 @@ body, html {
   height: 100vh;
   z-index: 0;
   pointer-events: none;
+  will-change: transform;
+  contain: paint;
 }
 
 
@@ -58,6 +60,22 @@ body, html {
 /* Hide scrollbar entirely (day tabs, timetable modal) */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Modal scroll — ultra-thin, neutral, premium */
+.modal-scroll::-webkit-scrollbar { width: 3px; }
+.modal-scroll::-webkit-scrollbar-track { background: transparent; }
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.13);
+  border-radius: 9999px;
+  transition: background 0.2s;
+}
+.modal-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }
+.modal-scroll { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.13) transparent; }
+
+.survey-scroll::-webkit-scrollbar { width: 4px; }
+.survey-scroll::-webkit-scrollbar-track { background: transparent; }
+.survey-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 9999px; }
+.survey-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.32); }
 
 /* Ensure touch targets are thumb-friendly on mobile */
 @media (max-width: 768px) {

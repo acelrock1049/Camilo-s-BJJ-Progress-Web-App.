@@ -27,35 +27,37 @@ const BELT_HEX: Record<DBC, string> = {
 }
 
 const EMAIL0_SUBJECTS: Record<DBC, string> = {
-  white:  "Your BJJ journey starts with awareness",
-  red:    "Your fighting spirit is your superpower",
-  blue:   "You have the discipline to go far",
-  orange: "Your mindset is built to perform",
-  green:  "Community will be your greatest weapon",
-  yellow: "You see the whole game",
-}
-
-const EMAIL0_HEADLINES: Record<DBC, string> = {
-  white:  "Safety first. Mastery second.",
-  red:    "Channel your fire into leverage.",
-  blue:   "The system is your advantage.",
-  orange: "Measure everything. Improve everything.",
-  green:  "Your tribe is waiting on the mat.",
-  yellow: "You already see what others miss.",
+  white:  "Your Psychological Belt is ready 🥋",
+  red:    "Your Psychological Belt is ready 🥋",
+  blue:   "Your Psychological Belt is ready 🥋",
+  orange: "Your Psychological Belt is ready 🥋",
+  green:  "Your Psychological Belt is ready 🥋",
+  yellow: "Your Psychological Belt is ready 🥋",
 }
 
 const EMAIL0_BODY: Record<DBC, string> = {
-  white: `You approach BJJ with a mix of curiosity and caution — and that's not weakness, that's intelligence. Your nervous system is alert and adaptive. On the mat, safety and trust come first. Camilo builds exactly that environment: no surprises, no pressure, complete control over your pace.`,
-  red:   `You bring fire to the mat. You want to test yourself, compete, and earn your place. That competitive drive is rare, and Camilo knows how to channel it so it becomes your biggest strategic advantage — not brute force, but calculated leverage that lets you dominate with technique.`,
-  blue:  `You thrive on structure and clear instruction. You want the system, not the chaos. Camilo's methodical 90-day roadmap was designed for minds like yours — every technique mapped, every progression planned. No ambiguity. No improvisation. Just a clear path forward.`,
-  orange:`You track progress, optimize relentlessly, and set measurable goals. You won't just train — you'll improve. Camilo uses data and milestones to keep achievement-driven students locked in: escape rates, conditioning benchmarks, weekly KPIs. You'll see the numbers move.`,
-  green: `You will love the culture at Camilo's BJJ. The relationships forged on the mat here go beyond sport — they become genuine friendships. Your growth will come not just from technique, but from the tribe you train with: a community of Docklands professionals who help each other grow.`,
-  yellow:`You already see the interconnected system behind everything. On the mat, you'll be fascinated by how each position, transition, and principle fits together like geometry. Camilo teaches the meta-game — the physics of human leverage, the why behind every movement. You're going to love it.`,
+  white: `<strong>Your dominant profile is White / Beige:</strong> you operate in <em>safety-first</em> mode.<br><br>
+Your nervous system prioritises security above everything else. Before learning any technique, your mind needs to know the environment is completely safe.<br><br>
+On the mats, that means this: we won't put you in a live roll until <em>you</em> say you're ready.`,
+  red:   `<strong>Your dominant profile is Red:</strong> you operate from challenge and ego.<br><br>
+Your internal engine is competition. You need an opponent — physical or conceptual — to perform at your best. Routine without challenge drains you.<br><br>
+On the mats: that's exactly what you'll find. Technique designed to make brute force your last resort, not your only tool.`,
+  blue:  `<strong>Your dominant profile is Blue:</strong> you operate through discipline and systems.<br><br>
+You need clear instruction and a proven method. Ambiguity and chaotic environments wear you out. You respond well to clear hierarchies and defined expectations.<br><br>
+On the mats: our Smart System gives you exactly that — a 90-day roadmap, technique step by step, no improvisation.`,
+  orange:`<strong>Your dominant profile is Orange:</strong> you operate through optimisation and results.<br><br>
+You're analytical by nature. You need metrics, measurable progress, and a clear ROI on your time and money. "Just train harder" without data doesn't cut it for you.<br><br>
+On the mats: we'll give you physical, technical, and psychological KPIs from day one.`,
+  green: `<strong>Your dominant profile is Green:</strong> you operate through connection and empathy.<br><br>
+Your biggest energy source is your tribe. An environment where ego crushes the beginner is literally toxic for you. You learn better through cooperation than competition.<br><br>
+On the mats: Camilo's BJJ "Ego-Free Mats" are built exactly for your kind of mind.`,
+  yellow:`<strong>Your dominant profile is Yellow:</strong> you operate through macro-vision and systems thinking.<br><br>
+You need to understand the <em>why</em> behind every technique before you can execute it. You get frustrated when the method lacks internal coherence. You see patterns where others see chaos.<br><br>
+On the mats: BJJ is the perfect language for your mind — human geometry, leverage, and continuous adaptation to your opponent's system.`,
 }
 
 function getEmail0Html(dbc: DBC, name: string): string {
   const accentColor = BELT_HEX[dbc]
-  const headline = EMAIL0_HEADLINES[dbc]
   const body = EMAIL0_BODY[dbc]
 
   return `<!DOCTYPE html>
@@ -79,32 +81,35 @@ function getEmail0Html(dbc: DBC, name: string): string {
             CAMILO'S BJJ &middot; YOUR PSYCHOLOGICAL BELT
           </p>
           <h1 style="font-size:28px;font-weight:900;color:#111827;margin:0;font-family:Georgia,serif;line-height:1.2;">
-            ${headline}
+            Your results are in, ${name}
           </h1>
         </td></tr>
 
         <!-- Body -->
         <tr><td style="padding:8px 48px 32px;font-size:16px;line-height:1.7;color:#374151;font-family:Georgia,serif;">
-          <p>Hi ${name},</p>
+          <p>You made 8 instinctive decisions. Each one revealed something about how your mind operates under pressure, how you learn, and what you need to grow.</p>
           <p>${body}</p>
           <p>
-            This is what your Jiu-Jitsu journey looks like from the inside — and Camilo knows
-            exactly how to work with your mindset to accelerate your evolution on the mat.
+            BJJ isn't just about sweating. It's a <strong>Personal Engineering Lab</strong> where you learn to use leverage — physical and mental — to overcome any obstacle.
           </p>
           <p>
-            Your first class is completely free. No commitment, no contract, no pressure.
-            Just show up and see what it feels like.
+            The first step is your Diagnostic Session (45 minutes):
           </p>
+          <ul style="padding-left:20px;">
+            <li>15 min: Goals conversation + assessment.</li>
+            <li>30 min: Technical introduction adapted to your profile.</li>
+          </ul>
+          <p><em>Sweating on day one is optional.</em></p>
         </td></tr>
 
         <!-- CTA -->
         <tr><td style="padding:0 48px 40px;text-align:center;">
           <a href="https://wa.me/61489038711"
              style="display:inline-block;padding:16px 40px;background:#111827;color:#ffffff;text-decoration:none;border-radius:50px;font-size:15px;font-weight:700;letter-spacing:0.05em;font-family:Arial,sans-serif;">
-            Book your free trial via WhatsApp &rarr;
+            Book My Free Diagnostic &rarr;
           </a>
           <p style="margin:16px 0 0;font-size:13px;color:#9ca3af;font-family:Arial,sans-serif;">
-            Or find us at 18 Import Ln, Docklands VIC 3008 (inside Empower Tactical)
+            You don't need to be fit. You don't need experience. I'll handle the rest.
           </p>
         </td></tr>
 

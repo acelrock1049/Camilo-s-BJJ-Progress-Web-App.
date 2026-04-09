@@ -140,18 +140,21 @@ function useParticleCanvas(canvasRef: React.RefObject<HTMLCanvasElement | null>,
     if (!ctx) return;
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
 
     const COUNT = 55;
     particlesRef.current = Array.from({ length: COUNT }, () =>
-      spawnParticle(canvas.width, canvas.height)
+      spawnParticle(canvas.offsetWidth, canvas.offsetHeight)
     );
 
     const draw = () => {
-      const { width: w, height: h } = canvas;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
       ctx.clearRect(0, 0, w, h);
 
       particlesRef.current.forEach(p => {
@@ -232,8 +235,8 @@ function DesktopCard({ cls }: { cls: ClassEntry }) {
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       border: '1px solid rgba(255,255,255,0.9)',
-      borderRadius: 12,
-      padding: '8px 10px 8px 14px',
+      borderRadius: 14,
+      padding: '10px 12px 10px 18px',
       cursor: 'pointer',
       transition: 'transform 0.15s, box-shadow 0.15s',
     }}
@@ -252,17 +255,17 @@ function DesktopCard({ cls }: { cls: ClassEntry }) {
         width: 3, borderRadius: '12px 0 0 12px',
         background: barGradient,
       }} />
-      <div style={{ fontSize: 11, fontWeight: 900, color: '#111', lineHeight: 1.2 }}>
+      <div style={{ fontSize: 13, fontWeight: 900, color: '#111', lineHeight: 1.2 }}>
         {cls.start}
-        <span style={{ fontWeight: 400, color: '#aaa', marginLeft: 3, fontSize: 10 }}>{cls.end}</span>
+        <span style={{ fontWeight: 400, color: '#aaa', marginLeft: 3, fontSize: 11 }}>{cls.end}</span>
       </div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#222', marginTop: 2, lineHeight: 1.3 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#222', marginTop: 3, lineHeight: 1.3 }}>
         {cls.name}
       </div>
       <span style={{
-        display: 'inline-block', marginTop: 4,
-        fontSize: 9, fontWeight: 700,
-        padding: '1px 7px', borderRadius: 20,
+        display: 'inline-block', marginTop: 5,
+        fontSize: 10, fontWeight: 700,
+        padding: '2px 8px', borderRadius: 20,
         background: cardMode.badgeBg, color: cardMode.badgeColor,
         letterSpacing: '0.04em',
       }}>
@@ -281,12 +284,12 @@ function DesktopCalendar({ filter, mode, accentGradient, onBook }: {
   onBook?: () => void;
 }) {
   return (
-    <div style={{ position: 'relative', zIndex: 2, padding: '0 24px 0' }}>
+    <div style={{ position: 'relative', zIndex: 2, padding: '0 36px 0' }}>
       {/* 7-col grid */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(7, 1fr)',
-        gap: 8,
+        gap: 12,
       }}>
         {DAYS.map((day, i) => {
           const allDayClasses = ALL_CLASSES[i] ?? [];
@@ -310,7 +313,7 @@ function DesktopCalendar({ filter, mode, accentGradient, onBook }: {
                 transition: 'border-color 0.4s',
               }}>
                 <div style={{
-                  fontSize: 11, fontWeight: 900,
+                  fontSize: 13, fontWeight: 900,
                   letterSpacing: '0.12em', textTransform: 'uppercase',
                   color: hasMatch ? mode.textAccent : '#bbb',
                   transition: 'color 0.4s',
@@ -442,7 +445,7 @@ export function WeeklyTimetable({ onBook, className = '' }: WeeklyTimetableProps
           position: 'relative',
           minHeight: isDesktop ? 'auto' : 680,
           overflow: 'hidden',
-          borderRadius: isDesktop ? 0 : 20,
+          borderRadius: isDesktop ? 24 : 20,
           fontFamily: 'system-ui, sans-serif',
           padding: '0 0 32px',
           transition: 'background 0.6s ease',
@@ -466,7 +469,7 @@ export function WeeklyTimetable({ onBook, className = '' }: WeeklyTimetableProps
           flexDirection: isDesktop ? 'row' : 'column',
           alignItems: isDesktop ? 'center' : 'center',
           justifyContent: isDesktop ? 'space-between' : 'center',
-          padding: isDesktop ? '28px 24px 20px' : '32px 20px 16px',
+          padding: isDesktop ? '36px 36px 24px' : '32px 20px 16px',
           textAlign: isDesktop ? 'left' : 'center',
           gap: isDesktop ? 16 : 0,
         }}>
@@ -480,7 +483,7 @@ export function WeeklyTimetable({ onBook, className = '' }: WeeklyTimetableProps
               Weekly Schedule
             </div>
             <h2 style={{
-              fontSize: isDesktop ? 26 : 30, fontWeight: 900, color: '#111',
+              fontSize: isDesktop ? 34 : 30, fontWeight: 900, color: '#111',
               lineHeight: 1.1, letterSpacing: -1, margin: 0,
             }}>
               Find your{' '}

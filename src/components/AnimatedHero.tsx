@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Brain } from 'lucide-react';
+import { Network } from 'lucide-react';
 import { TextRotate } from './ui/text-rotate';
 
 // ─────────────────────────────────────────────────────────────
@@ -23,6 +23,8 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 // ─────────────────────────────────────────────────────────────
 interface AnimatedHeroProps {
     onSurveyOpen: () => void;
+    onSpiralOpen: () => void;
+    onBookingOpen: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -57,6 +59,7 @@ interface CtaButtonProps {
     glowColor: string;
     borderActiveClass: string;
     bgActiveClass: string;
+    primary?: boolean;
 }
 
 function CtaButton({
@@ -68,6 +71,7 @@ function CtaButton({
     glowColor,
     borderActiveClass,
     bgActiveClass,
+    primary = false,
 }: CtaButtonProps) {
     const [isActive, setIsActive] = useState(false);
     const handleEnter = useCallback(() => setIsActive(true), []);
@@ -78,14 +82,17 @@ function CtaButton({
         <motion.div
             className={`
                 relative rounded-2xl border overflow-hidden cursor-pointer select-none
-                bg-white/50 backdrop-blur-md w-full min-w-max
+                backdrop-blur-md w-full min-w-max
                 transition-[border-color,box-shadow] duration-300 ease-in-out
-                ${isActive ? borderActiveClass : 'border-gray-200/60'}
+                ${primary ? 'bg-white/80' : 'bg-white/50'}
+                ${isActive ? borderActiveClass : primary ? 'border-yellow-300/70' : 'border-gray-200/60'}
             `}
             style={{
                 boxShadow: isActive
                     ? `0 16px 48px ${glowColor}, 0 0 0 1px ${glowColor}`
-                    : '0 4px 20px rgba(0,0,0,0.04)',
+                    : primary
+                        ? `0 8px 32px ${glowColor}, 0 0 0 1px ${glowColor}`
+                        : '0 4px 20px rgba(0,0,0,0.04)',
             }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -93,22 +100,23 @@ function CtaButton({
             onMouseLeave={handleLeave}
             onClick={onClick ?? handleTap}
         >
-            {/* Background gradient — fades in on hover */}
+            {/* Background gradient */}
             <div
-                className={`absolute inset-0 bg-gradient-to-br ${bgActiveClass} transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute inset-0 bg-gradient-to-br ${bgActiveClass} transition-opacity duration-300`}
+                style={{ opacity: isActive ? 1 : primary ? 0.5 : 0 }}
             />
 
-            {/* Accent top bar */}
+            {/* Accent top bar — always on for primary */}
             <div
                 className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
                 style={{
                     background: `linear-gradient(to right, ${accentFrom}, ${accentTo})`,
-                    opacity: isActive ? 1 : 0,
+                    opacity: isActive ? 1 : primary ? 0.7 : 0,
                 }}
             />
 
             {/* Content */}
-            <div className="relative z-10 px-6 py-4 flex items-center gap-3">
+            <div className={`relative z-10 px-6 flex items-center gap-3 ${primary ? 'py-5' : 'py-4'}`}>
                 {children}
             </div>
         </motion.div>
@@ -125,9 +133,113 @@ function CtaButton({
 }
 
 // ─────────────────────────────────────────────────────────────
+// EVOLUTION BUTTON — energy wave sweep + text distortion
+// White bg at rest → black on hover, opens SpiralExperience
+// ─────────────────────────────────────────────────────────────
+function EvolutionButton({ onClick }: { onClick: () => void }) {
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Wave + text distortion share the same timing so distortion
+    // peaks as the energy band passes over the text.
+    const waveDuration = isHovered ? 1.1 : 2.4;
+    const waveRepeatDelay = isHovered ? 0.05 : 0.6;
+
+    return (
+        <motion.button
+            onClick={onClick}
+            className="relative w-full min-w-max rounded-2xl overflow-hidden cursor-pointer select-none border"
+            animate={{
+                backgroundColor: isHovered ? '#0a0a0a' : '#ffffff',
+                borderColor: isHovered ? 'rgba(255,255,255,0.12)' : 'rgba(139,92,246,0.28)',
+                boxShadow: isHovered
+                    ? '0 12px 40px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)'
+                    : '0 6px 28px rgba(139,92,246,0.16), 0 2px 8px rgba(139,92,246,0.08)',
+            }}
+            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            whileTap={{ scale: 0.98 }}
+        >
+            {/* Energy wave band — sweeps left → right */}
+            <motion.div
+                className="absolute top-0 bottom-0 pointer-events-none"
+                style={{
+                    width: '55%',
+                    background: isHovered
+                        ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.09) 60%, transparent 100%)'
+                        : 'linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.08) 40%, rgba(139,92,246,0.20) 50%, rgba(139,92,246,0.08) 60%, transparent 100%)',
+                    filter: 'blur(3px)',
+                    left: 0,
+                }}
+                animate={{ x: ['-60%', '160%'] }}
+                transition={{
+                    duration: waveDuration,
+                    repeat: Infinity,
+                    ease: [0.4, 0, 0.6, 1],
+                    repeatDelay: waveRepeatDelay,
+                }}
+            />
+
+            {/* Accent bar — violet, always visible */}
+            <div
+                className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
+                style={{ background: 'linear-gradient(to right, #7c3aed, #8b5cf6, #6366f1)' }}
+            />
+
+            {/* Content */}
+            <div className="relative z-10 px-6 py-4 flex items-center gap-3">
+                {/* Icon */}
+                <motion.svg
+                    className="w-5 h-5 shrink-0"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    strokeWidth="1.5" strokeLinecap="round"
+                    animate={{ color: isHovered ? '#a78bfa' : '#7c3aed' }}
+                    transition={{ duration: 0.38 }}
+                >
+                    <path d="M12 21a9 9 0 0 0 0-18c-4 0-7 2.5-7 6 0 2.8 1.8 5 4 5 1.6 0 3-1.3 3-3 0-1.2-.9-2-2-2" />
+                </motion.svg>
+
+                {/* Text — colour + subtle skew distortion synced with wave */}
+                <motion.span
+                    className="font-bold tracking-widest text-xs uppercase"
+                    animate={{
+                        color: isHovered ? '#ffffff' : '#111111',
+                        skewX: [0, -0.9, 0.5, -0.2, 0],
+                    }}
+                    transition={{
+                        color: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
+                        skewX: {
+                            duration: waveDuration,
+                            repeat: Infinity,
+                            ease: [0.4, 0, 0.6, 1],
+                            repeatDelay: waveRepeatDelay,
+                        },
+                    }}
+                >
+                    Discover Your Evolution
+                </motion.span>
+
+                {/* Arrow */}
+                <motion.svg
+                    className="w-4 h-4 ml-auto shrink-0"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    animate={{
+                        color: isHovered ? '#ffffff' : '#7c3aed',
+                        x: isHovered ? 3 : 0,
+                    }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </motion.svg>
+            </div>
+        </motion.button>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────
-export function AnimatedHero({ onSurveyOpen }: AnimatedHeroProps) {
+export function AnimatedHero({ onSurveyOpen, onSpiralOpen, onBookingOpen }: AnimatedHeroProps) {
     const taglines = useMemo(() => [
         'Empower Your Life',
         'Flow Through The Chaos',
@@ -266,7 +378,33 @@ export function AnimatedHero({ onSurveyOpen }: AnimatedHeroProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    {/* Button 1 — Instagram */}
+                    {/* Button 1 — Primary: Find Your Mindset */}
+                    <CtaButton
+                        onClick={onSurveyOpen}
+                        accentFrom="#eab308"
+                        accentTo="#06b6d4"
+                        glowColor="rgba(234,179,8,0.25)"
+                        borderActiveClass="border-yellow-400/60"
+                        bgActiveClass="from-yellow-400/10 to-cyan-400/10"
+                        primary
+                    >
+                        <Network className="w-5 h-5 shrink-0 text-yellow-500" />
+                        <span className="font-black tracking-widest text-xs uppercase text-gray-900">
+                            Discover your mindset
+                        </span>
+                    </CtaButton>
+
+                    {/* Button 2 — Discover Your Evolution (wave animation) */}
+                    <EvolutionButton onClick={onSpiralOpen} />
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-2 px-1 pt-1">
+                        <div className="flex-1 h-px bg-gray-200/60" />
+                        <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-300">Connect</span>
+                        <div className="flex-1 h-px bg-gray-200/60" />
+                    </div>
+
+                    {/* Button 3 — Instagram */}
                     <CtaButton
                         href="https://www.instagram.com/camilosbjj/"
                         accentFrom="#9333ea"
@@ -281,24 +419,9 @@ export function AnimatedHero({ onSurveyOpen }: AnimatedHeroProps) {
                         </span>
                     </CtaButton>
 
-                    {/* Button 2 — Find your mindset */}
+                    {/* Button 4 — WhatsApp */}
                     <CtaButton
-                        onClick={onSurveyOpen}
-                        accentFrom="#eab308"
-                        accentTo="#06b6d4"
-                        glowColor="rgba(234,179,8,0.2)"
-                        borderActiveClass="border-yellow-400/50"
-                        bgActiveClass="from-yellow-400/8 to-cyan-400/8"
-                    >
-                        <Brain className="w-5 h-5 shrink-0 text-yellow-500" />
-                        <span className="font-bold tracking-widest text-xs uppercase text-gray-800">
-                            Find your mindset for BJJ
-                        </span>
-                    </CtaButton>
-
-                    {/* Button 3 — WhatsApp */}
-                    <CtaButton
-                        href="https://wa.me/61489038711"
+                        onClick={onBookingOpen}
                         accentFrom="#16a34a"
                         accentTo="#22c55e"
                         glowColor="rgba(22,163,74,0.2)"

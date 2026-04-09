@@ -139,44 +139,51 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
-        className="flex flex-col h-full max-w-3xl mx-auto px-6 pt-20 pb-10"
+        className="flex flex-col h-full max-w-3xl mx-auto"
       >
-        <div className="mb-4">
-          <span className="text-sm font-semibold tracking-widest text-neutral-400 uppercase">
-            Question {step} of {surveyQuestions.length}
-          </span>
-          <div className="w-full bg-neutral-200 h-1 mt-3 rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full bg-neutral-900" 
-              initial={{ width: `${((step - 1) / surveyQuestions.length) * 100}%` }}
-              animate={{ width: `${(step / surveyQuestions.length) * 100}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
+        {/* Fixed header — progress + question text, never scrolls */}
+        <div className="flex-shrink-0 px-6 pt-10 pb-4">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="text-sm font-semibold tracking-widest text-neutral-400 uppercase whitespace-nowrap">
+              {step} / {surveyQuestions.length}
+            </span>
+            <div className="flex-1 bg-neutral-200 h-1 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-neutral-900"
+                initial={{ width: `${((step - 1) / surveyQuestions.length) * 100}%` }}
+                animate={{ width: `${(step / surveyQuestions.length) * 100}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              />
+            </div>
           </div>
+
+          <h3 className="text-2xl md:text-3xl font-semibold text-neutral-900 leading-tight font-editorial">
+            {question.text}
+          </h3>
+
+          {question.context && (
+            <p className="text-sm text-neutral-500 italic mt-2">
+              {question.context}
+            </p>
+          )}
         </div>
 
-        <h3 className="text-3xl md:text-4xl font-semibold text-neutral-900 mt-8 mb-4 leading-tight font-editorial">
-          {question.text}
-        </h3>
-        
-        {question.context && (
-          <p className="text-neutral-500 italic mb-8">
-            {question.context}
-          </p>
-        )}
-
-        <div className="flex-1 overflow-y-auto space-y-3 pb-8 scrollbar-hide">
+        {/* Scrollable answers — fills remaining height, scrollbar always visible */}
+        <div
+          className="survey-scroll flex-1 min-h-0 overflow-y-auto px-6 pb-8 space-y-3"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.18) transparent' }}
+        >
           {question.answers.map((ans) => (
             <motion.button
               key={ans.id}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               onClick={() => handleAnswer(ans.color)}
-              className="w-full text-left p-6 md:p-8 bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl shadow-sm hover:shadow-md transition-all group"
+              className="w-full text-left p-4 md:p-5 bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl shadow-sm hover:shadow-md transition-all group"
             >
-              <div className="flex items-start">
-                <div className="w-6 h-6 rounded-full border-2 border-neutral-300 mr-4 flex-shrink-0 group-hover:border-neutral-900 transition-colors" />
-                <span className="text-lg md:text-xl text-neutral-800 font-light leading-relaxed group-hover:text-neutral-900">
+              <div className="flex items-start gap-4">
+                <div className="w-5 h-5 rounded-full border-2 border-neutral-300 flex-shrink-0 mt-0.5 group-hover:border-neutral-900 transition-colors" />
+                <span className="text-base md:text-lg text-neutral-800 font-light leading-snug group-hover:text-neutral-900">
                   {ans.text}
                 </span>
               </div>
@@ -223,18 +230,24 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col h-full max-w-4xl mx-auto px-6 pt-16 pb-12"
+        className="flex flex-col h-full max-w-4xl mx-auto"
       >
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-6xl font-bold text-neutral-900 mb-4 tracking-tight drop-shadow-sm font-editorial">
+        {/* Fixed results header */}
+        <div className="flex-shrink-0 text-center px-6 pt-10 pb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-neutral-900 mb-3 tracking-tight drop-shadow-sm font-editorial">
             Your Mindset Map
           </h2>
-          <p className="text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto">
-            This is your psychological breakdown based on your instinctual responses. Notice how this naturally maps to how you learn and grow on the mats.
+          <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto">
+            Your psychological breakdown based on instinctual responses — and how it maps to learning on the mats.
           </p>
         </div>
 
-        <div className="flex-1 w-full max-w-2xl mx-auto space-y-6">
+        {/* Scrollable results body */}
+        <div
+          className="survey-scroll flex-1 min-h-0 overflow-y-auto px-6 pb-10"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.18) transparent' }}
+        >
+        <div className="w-full max-w-2xl mx-auto space-y-5">
           {sortedResults.map(([color, percentage], index) => (
             <div key={color} className="relative">
               <div className="flex justify-between items-end mb-2">
@@ -257,66 +270,67 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-          className="mt-16 max-w-md mx-auto w-full"
-        >
-          {leadSubmitted ? (
-            <div className="text-center space-y-3 py-8">
-              <div className="w-12 h-12 bg-neutral-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="white" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 }}
+            className="mt-10 max-w-md mx-auto w-full"
+          >
+            {leadSubmitted ? (
+              <div className="text-center space-y-3 py-6">
+                <div className="w-12 h-12 bg-neutral-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="white" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+                <p className="text-neutral-900 font-semibold text-lg">Analysis sent!</p>
+                <p className="text-neutral-500 text-sm">Check your inbox — your mindset breakdown is on its way.</p>
               </div>
-              <p className="text-neutral-900 font-semibold text-lg">Analysis sent!</p>
-              <p className="text-neutral-500 text-sm">Check your inbox — your mindset breakdown is on its way.</p>
-            </div>
-          ) : (
-            <>
-              <p className="text-center text-neutral-500 text-sm mb-5">
-                Enter your details to receive your mindset analysis by email.
-              </p>
-              <form onSubmit={handleLeadSubmit} className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  required
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full p-4 bg-white/80 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 text-base shadow-sm"
-                />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full p-4 bg-white/80 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 text-base shadow-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-neutral-900 text-white font-medium text-base rounded-xl hover:bg-neutral-800 transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-3">
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : 'Send my analysis'}
-                </button>
-                {submitError && (
-                  <p className="text-red-500 text-sm text-center">{submitError}</p>
-                )}
-              </form>
-            </>
-          )}
-        </motion.div>
+            ) : (
+              <>
+                <p className="text-center text-neutral-500 text-sm mb-4">
+                  Enter your details to receive your mindset analysis by email.
+                </p>
+                <form onSubmit={handleLeadSubmit} className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    required
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="w-full p-3 bg-white/80 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 text-base shadow-sm"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full p-3 bg-white/80 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 text-base shadow-sm"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-3 bg-neutral-900 text-white font-medium text-base rounded-xl hover:bg-neutral-800 transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center gap-3">
+                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Sending...
+                      </span>
+                    ) : 'Send my analysis'}
+                  </button>
+                  {submitError && (
+                    <p className="text-red-500 text-sm text-center">{submitError}</p>
+                  )}
+                </form>
+              </>
+            )}
+          </motion.div>
+        </div>{/* end scrollable results body */}
       </motion.div>
     );
   };

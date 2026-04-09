@@ -39,6 +39,7 @@ const WEBHOOK_TIMEOUT_MS = 2500;
 
 interface LeadData {
   nombre: string;
+  email: string;
   nivel_experiencia: string;
   objetivo_interes: string;
   origen_url: string;
@@ -75,7 +76,7 @@ async function guardarLead(datos: LeadData): Promise<void> {
 // ─── WhatsApp redirect ────────────────────────────────────────────────────────
 
 function redirigirWhatsApp(datos: LeadData): void {
-  const message = `Hi, my name is ${datos.nombre}. I'm a ${datos.nivel_experiencia} and I'm interested in ${datos.objetivo_interes}. I'd like to book a free trial class.`;
+  const message = `Hi, my name is ${datos.nombre} (${datos.email}). I'm a ${datos.nivel_experiencia} and I'm interested in ${datos.objetivo_interes}. I'd like to book a free trial class.`;
   const url = `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(message)}`;
   window.location.href = url;
 }
@@ -89,6 +90,7 @@ export interface TrialBookingModalProps {
 
 export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
   const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
   const [nivel, setNivel] = useState('');
   const [objetivo, setObjetivo] = useState('');
   const [botField, setBotField] = useState('');
@@ -101,6 +103,7 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
     if (isOpen) {
       setTimeout(() => firstInputRef.current?.focus(), 120);
       setNombre('');
+      setEmail('');
       setNivel('');
       setObjetivo('');
       setBotField('');
@@ -124,8 +127,13 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
     if (botField) return;
 
     // Validation
-    if (!nombre.trim() || !nivel || !objetivo) {
+    if (!nombre.trim() || !email.trim() || !nivel || !objetivo) {
       setError('Please fill in all fields.');
+      return;
+    }
+    // Basic email format check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Please enter a valid email address.');
       return;
     }
 
@@ -136,6 +144,7 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
     const params = new URLSearchParams(window.location.search);
     const datos: LeadData = {
       nombre: nombre.trim(),
+      email: email.trim(),
       nivel_experiencia: nivel,
       objetivo_interes: objetivo,
       origen_url: window.location.href,
@@ -231,6 +240,20 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
                       value={nombre}
                       onChange={e => setNombre(e.target.value)}
                       placeholder="e.g. Alex"
+                      style={inputStyle}
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={labelStyle}>Email address</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="e.g. alex@email.com"
                       style={inputStyle}
                       disabled={loading}
                       required

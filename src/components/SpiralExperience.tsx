@@ -208,7 +208,7 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
     const initScene = () => {
       refs.scene = new THREE.Scene()
       refs.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false })
-      refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5))
+      refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       refs.renderer.setClearColor(new THREE.Color(0x010101))
       refs.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1)
 
@@ -249,6 +249,7 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
     }
 
     const animate = () => {
+      if (document.hidden) { refs.animationId = requestAnimationFrame(animate); return; }
       if (refs.uniforms) {
         (refs.uniforms.time.value as number) += 0.01
 
@@ -278,6 +279,7 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
       if (!refs.renderer || !refs.uniforms) return
       const width = window.innerWidth
       const height = window.innerHeight
+      refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       refs.renderer.setSize(width, height, false)
       refs.uniforms.resolution.value = [width, height]
     }
