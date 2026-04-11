@@ -46,6 +46,7 @@ interface LeadData {
   utm_source: string;
   utm_medium: string;
   utm_campaign: string;
+  source: string;
 }
 
 // ─── Supabase insert (fire-and-forget with timeout) ──────────────────────────
@@ -151,6 +152,7 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
       utm_source: params.get('utm_source') ?? '',
       utm_medium: params.get('utm_medium') ?? '',
       utm_campaign: params.get('utm_campaign') ?? '',
+      source: 'popup',
     };
 
     // Save to Supabase (max 2.5s), then redirect regardless
