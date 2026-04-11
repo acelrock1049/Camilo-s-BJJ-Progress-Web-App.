@@ -1,6 +1,129 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { surveyQuestions, type SdColor } from '../data/surveyQuestions';
+
+type Question = (typeof surveyQuestions)[number];
+
+/* ── WebGL2 Belt Wave Canvas ── */
+const VERT_SRC = `#version 300 es
+in vec2 a_position;
+void main(){gl_Position=vec4(a_position,0,1);}`;
+
+const FRAG_SRC = `#version 300 es
+precision mediump float;
+uniform vec2 u_resolution;
+uniform float u_time;
+out vec4 fragColor;
+void main(){
+  vec2 p=(gl_FragCoord.xy*2.0-u_resolution)/min(u_resolution.x,u_resolution.y);
+  float t=u_time*0.8;
+  float wave=sin(p.y*3.0+t)*0.15+sin(p.y*5.5-t*1.3)*0.08;
+  float dist=abs(p.x-wave);
+  float core=smoothstep(0.012,0.003,dist);
+  float glow=0.015/(dist+0.008);
+  vec3 mainColor=vec3(0.08)*core+vec3(0.9,0.1,0.05)*glow*0.3;
+  vec3 aberr=vec3(0.0);
+  vec3 colors[4];
+  colors[0]=vec3(1.0);
+  colors[1]=vec3(0.133,0.333,1.0);
+  colors[2]=vec3(0.5,0.0,0.5);
+  colors[3]=vec3(0.396,0.263,0.129);
+  for(int i=0;i<4;i++){
+    float fi=float(i);
+    float off=(fi+1.0)*0.025+sin(t*0.5+fi)*0.01;
+    float bw=sin(p.y*3.0+t+fi*0.7)*0.15+sin(p.y*5.5-t*1.3+fi*0.5)*0.08;
+    float bx=bw+off*(mod(fi,2.0)*2.0-1.0);
+    float bd=abs(p.x-bx);
+    aberr+=colors[i]*(0.004/(bd+0.006))*0.4;
+  }
+  vec3 color=vec3(0.082)+mainColor+aberr;
+  float vignette=1.0-length(p*vec2(0.5,0.4))*0.3;
+  fragColor=vec4(color*vignette,1.0);
+}`;
+
+function BeltWaveCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
+
+    const vs = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vs, VERT_SRC);
+    gl.compileShader(vs);
+
+    const fs = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fs, FRAG_SRC);
+    gl.compileShader(fs);
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(program, 'u_resolution');
+    const uTime = gl.getUniformLocation(program, 'u_time');
+
+    const dpr = Math.min(window.devicePixelRatio, 1.5);
+    const resize = () => {
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    let t = 0;
+    let raf: number;
+    const draw = () => {
+      t += 0.01;
+      gl.uniform1f(uTime, t);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      gl.deleteProgram(program);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      gl.deleteBuffer(buf);
+      gl.deleteVertexArray(vao);
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />;
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleQuestions(qs: Question[]): Question[] {
+  return shuffle(qs).map(q => ({ ...q, answers: shuffle(q.answers) }));
+}
 
 interface SurveyModalProps {
   isOpen: boolean;
@@ -8,7 +131,8 @@ interface SurveyModalProps {
 }
 
 export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState(0); // 0: Intro, 1-8: Questions, 10: Results
+  const [step, setStep] = useState(0); // 0: Intro, 1-8: Questions, 9: Reveal, 10: Results
+  const [shuffledQuestions, setShuffledQuestions] = useState(() => shuffleQuestions(surveyQuestions));
   const [scores, setScores] = useState<Record<SdColor, number>>({
     white: 0,
     red: 0,
@@ -24,10 +148,17 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
   const [submitError, setSubmitError] = useState('');
   const [leadSubmitted, setLeadSubmitted] = useState(false);
 
-  // Lock body scroll when modal is open
+  // Lock body scroll when modal is open & re-shuffle on each open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      setShuffledQuestions(shuffleQuestions(surveyQuestions));
+      setStep(0);
+      setScores({ white: 0, red: 0, blue: 0, orange: 0, green: 0, yellow: 0 });
+      setEmail('');
+      setName('');
+      setLeadSubmitted(false);
+      setSubmitError('');
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -36,14 +167,22 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
     };
   }, [isOpen]);
 
+  // Auto-transition from reveal to results
+  useEffect(() => {
+    if (step === 9) {
+      const timer = setTimeout(() => setStep(10), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
+
   if (!isOpen) return null;
 
   const handleAnswer = (color: SdColor) => {
     const newScores = { ...scores, [color]: scores[color] + 1 };
     setScores(newScores);
-    // After last question, jump straight to results (skip lead gate)
+    // After last question, go to reveal animation before results
     if (step === surveyQuestions.length) {
-      setStep(10);
+      setStep(9);
     } else {
       setStep(prev => prev + 1);
     }
@@ -115,7 +254,7 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
       className="flex flex-col items-center justify-center h-full text-center max-w-2xl mx-auto px-6"
     >
       <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-neutral-900 mb-6 drop-shadow-sm font-editorial">
-        Discover your Psychological Belt
+        Discover your true Jiu-Jitsu psychological rank.
       </h2>
       <p className="text-lg md:text-xl text-neutral-600 font-light mb-12 max-w-lg leading-relaxed">
         Jiu-Jitsu is a physical language, but how you learn it depends on your mind. This short survey will map your current mental framework to a psychological BJJ belt.
@@ -131,14 +270,14 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
 
   const renderQuestion = () => {
     const qIndex = step - 1;
-    const question = surveyQuestions[qIndex];
+    const question = shuffledQuestions[qIndex];
 
     return (
       <motion.div
         key={`q-${qIndex}`}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -30 }}
         className="flex flex-col h-full max-w-3xl mx-auto"
       >
         {/* Fixed header — progress + question text, never scrolls */}
@@ -173,9 +312,12 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
           className="survey-scroll flex-1 min-h-0 overflow-y-auto px-6 pb-8 space-y-3"
           style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.18) transparent' }}
         >
-          {question.answers.map((ans) => (
+          {question.answers.map((ans, i) => (
             <motion.button
               key={ans.id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 + i * 0.06, duration: 0.35 }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               onClick={() => handleAnswer(ans.color)}
@@ -218,6 +360,28 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
       default: return '#000000';
     }
   };
+
+  const renderReveal = () => (
+    <motion.div
+      key="reveal"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      transition={{ duration: 0.6 }}
+      className="absolute inset-0 flex flex-col items-center justify-center z-20"
+      style={{ backgroundColor: '#151515' }}
+    >
+      <BeltWaveCanvas />
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="text-white/70 text-xl md:text-2xl font-editorial tracking-wide z-10"
+      >
+        Calculating your mindset...
+      </motion.p>
+    </motion.div>
+  );
 
   const renderResults = () => {
     const percentages = calculatePercentages();
@@ -342,11 +506,17 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: '100%' }}
         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-        className="fixed inset-0 z-[100] bg-neutral-50/95 backdrop-blur-3xl overflow-hidden"
+        className={`fixed inset-0 z-[100] overflow-hidden ${
+          step === 9 ? 'bg-[#151515]' : 'bg-neutral-50/95 backdrop-blur-3xl'
+        }`}
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-12 h-12 bg-white/50 backdrop-blur-md border border-neutral-200 rounded-full flex items-center justify-center text-neutral-600 hover:text-neutral-900 hover:bg-white transition-colors z-50 shadow-sm"
+          className={`absolute top-6 right-6 w-12 h-12 backdrop-blur-md rounded-full flex items-center justify-center transition-colors z-50 shadow-sm ${
+            step === 9
+              ? 'bg-white/10 border border-white/20 text-white/60 hover:text-white hover:bg-white/20'
+              : 'bg-white/50 border border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-white'
+          }`}
         >
           <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -357,6 +527,7 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
           <AnimatePresence mode="wait">
             {step === 0 && <React.Fragment key="intro">{renderIntro()}</React.Fragment>}
             {step > 0 && step <= surveyQuestions.length && <React.Fragment key={`q-${step}`}>{renderQuestion()}</React.Fragment>}
+            {step === 9 && <React.Fragment key="reveal">{renderReveal()}</React.Fragment>}
             {step === 10 && <React.Fragment key="results">{renderResults()}</React.Fragment>}
           </AnimatePresence>
         </div>
