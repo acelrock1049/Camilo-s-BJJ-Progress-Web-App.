@@ -27,31 +27,31 @@ const BELT_HEX: Record<DBC, string> = {
 }
 
 const EMAIL0_SUBJECTS: Record<DBC, string> = {
-  white:  "Your Psychological Belt is ready 🥋",
-  red:    "Your Psychological Belt is ready 🥋",
-  blue:   "Your Psychological Belt is ready 🥋",
-  orange: "Your Psychological Belt is ready 🥋",
-  green:  "Your Psychological Belt is ready 🥋",
-  yellow: "Your Psychological Belt is ready 🥋",
+  white:  "Your Mindset for BJJ is ready 🥋",
+  red:    "Your Mindset for BJJ is ready 🥋",
+  blue:   "Your Mindset for BJJ is ready 🥋",
+  orange: "Your Mindset for BJJ is ready 🥋",
+  green:  "Your Mindset for BJJ is ready 🥋",
+  yellow: "Your Mindset for BJJ is ready 🥋",
 }
 
 const EMAIL0_BODY: Record<DBC, string> = {
-  white: `<strong>Your dominant profile is White / Beige:</strong> you operate in <em>safety-first</em> mode.<br><br>
+  white: `<strong>Based on your answers, you have the awareness level of a White belt.</strong> You operate in <em>safety-first</em> mode.<br><br>
 Your nervous system prioritises security above everything else. Before learning any technique, your mind needs to know the environment is completely safe.<br><br>
 On the mats, that means this: we won't put you in a live roll until <em>you</em> say you're ready.`,
-  red:   `<strong>Your dominant profile is Red:</strong> you operate from challenge and ego.<br><br>
+  red:   `<strong>Based on your answers, you have the awareness level of a White 2 belt.</strong> You operate from challenge and ego.<br><br>
 Your internal engine is competition. You need an opponent — physical or conceptual — to perform at your best. Routine without challenge drains you.<br><br>
 On the mats: that's exactly what you'll find. Technique designed to make brute force your last resort, not your only tool.`,
-  blue:  `<strong>Your dominant profile is Blue:</strong> you operate through discipline and systems.<br><br>
+  blue:  `<strong>Based on your answers, you have the awareness level of a Blue 2 belt.</strong> You operate through discipline and systems.<br><br>
 You need clear instruction and a proven method. Ambiguity and chaotic environments wear you out. You respond well to clear hierarchies and defined expectations.<br><br>
 On the mats: our Smart System gives you exactly that — a 90-day roadmap, technique step by step, no improvisation.`,
-  orange:`<strong>Your dominant profile is Orange:</strong> you operate through optimisation and results.<br><br>
+  orange:`<strong>Based on your answers, you have the awareness level of a Purple belt.</strong> You operate through optimisation and results.<br><br>
 You're analytical by nature. You need metrics, measurable progress, and a clear ROI on your time and money. "Just train harder" without data doesn't cut it for you.<br><br>
 On the mats: we'll give you physical, technical, and psychological KPIs from day one.`,
-  green: `<strong>Your dominant profile is Green:</strong> you operate through connection and empathy.<br><br>
+  green: `<strong>Based on your answers, you have the awareness level of a Purple 2 belt.</strong> You operate through connection and empathy.<br><br>
 Your biggest energy source is your tribe. An environment where ego crushes the beginner is literally toxic for you. You learn better through cooperation than competition.<br><br>
 On the mats: Camilo's BJJ "Ego-Free Mats" are built exactly for your kind of mind.`,
-  yellow:`<strong>Your dominant profile is Yellow:</strong> you operate through macro-vision and systems thinking.<br><br>
+  yellow:`<strong>Based on your answers, you have the awareness level of a Brown belt.</strong> You operate through macro-vision and systems thinking.<br><br>
 You need to understand the <em>why</em> behind every technique before you can execute it. You get frustrated when the method lacks internal coherence. You see patterns where others see chaos.<br><br>
 On the mats: BJJ is the perfect language for your mind — human geometry, leverage, and continuous adaptation to your opponent's system.`,
 }
@@ -65,7 +65,7 @@ function getEmail0Html(dbc: DBC, name: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Your BJJ Psychological Belt</title>
+  <title>Your Mindset for BJJ</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:Georgia,serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 20px;">
@@ -78,7 +78,7 @@ function getEmail0Html(dbc: DBC, name: string): string {
         <!-- Header -->
         <tr><td style="padding:40px 48px 20px;text-align:center;">
           <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;color:${accentColor === '#e5e7eb' ? '#6b7280' : accentColor};text-transform:uppercase;margin:0 0 16px;font-family:Arial,sans-serif;">
-            CAMILO'S BJJ &middot; YOUR PSYCHOLOGICAL BELT
+            CAMILO'S BJJ &middot; YOUR MINDSET FOR BJJ
           </p>
           <h1 style="font-size:28px;font-weight:900;color:#111827;margin:0;font-family:Georgia,serif;line-height:1.2;">
             Your results are in, ${name}
