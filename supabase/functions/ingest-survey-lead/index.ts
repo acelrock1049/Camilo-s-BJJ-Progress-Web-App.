@@ -220,7 +220,7 @@ Deno.serve(async (req: Request) => {
   const { error: leadsError } = await supabase
     .from('leads')
     .upsert(
-      { email: cleanEmail, source: 'survey' },
+      { email: cleanEmail, source: 'survey', nombre: cleanName },
       { onConflict: 'email' }
     )
 
