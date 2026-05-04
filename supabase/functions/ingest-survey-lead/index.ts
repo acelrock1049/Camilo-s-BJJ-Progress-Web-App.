@@ -26,39 +26,30 @@ const BELT_HEX: Record<DBC, string> = {
   yellow: '#eab308',
 }
 
-const EMAIL0_SUBJECTS: Record<DBC, string> = {
-  white:  "Your Mindset for BJJ is ready 🥋",
-  red:    "Your Mindset for BJJ is ready 🥋",
-  blue:   "Your Mindset for BJJ is ready 🥋",
-  orange: "Your Mindset for BJJ is ready 🥋",
-  green:  "Your Mindset for BJJ is ready 🥋",
-  yellow: "Your Mindset for BJJ is ready 🥋",
+const EMAIL1_SUBJECTS: Record<DBC, string> = {
+  white:  "Your official result is ready 🥋",
+  red:    "Your official result is ready 🥋",
+  blue:   "Your official result is ready 🥋",
+  orange: "Your official result is ready 🥋",
+  green:  "Your official result is ready 🥋",
+  yellow: "Your official result is ready 🥋",
 }
 
-const EMAIL0_BODY: Record<DBC, string> = {
-  white: `<strong>Based on your answers, you have the awareness level of a White belt.</strong> You operate in <em>safety-first</em> mode.<br><br>
-Your nervous system prioritises security above everything else. Before learning any technique, your mind needs to know the environment is completely safe.<br><br>
-On the mats, that means this: we won't put you in a live roll until <em>you</em> say you're ready.`,
-  red:   `<strong>Based on your answers, you have the awareness level of a White 2 belt.</strong> You operate from challenge and ego.<br><br>
-Your internal engine is competition. You need an opponent — physical or conceptual — to perform at your best. Routine without challenge drains you.<br><br>
-On the mats: that's exactly what you'll find. Technique designed to make brute force your last resort, not your only tool.`,
-  blue:  `<strong>Based on your answers, you have the awareness level of a Blue 2 belt.</strong> You operate through discipline and systems.<br><br>
-You need clear instruction and a proven method. Ambiguity and chaotic environments wear you out. You respond well to clear hierarchies and defined expectations.<br><br>
-On the mats: our Smart System gives you exactly that — a 90-day roadmap, technique step by step, no improvisation.`,
-  orange:`<strong>Based on your answers, you have the awareness level of a Purple belt.</strong> You operate through optimisation and results.<br><br>
-You're analytical by nature. You need metrics, measurable progress, and a clear ROI on your time and money. "Just train harder" without data doesn't cut it for you.<br><br>
-On the mats: we'll give you physical, technical, and psychological KPIs from day one.`,
-  green: `<strong>Based on your answers, you have the awareness level of a Purple 2 belt.</strong> You operate through connection and empathy.<br><br>
-Your biggest energy source is your tribe. An environment where ego crushes the beginner is literally toxic for you. You learn better through cooperation than competition.<br><br>
-On the mats: Camilo's BJJ "Ego-Free Mats" are built exactly for your kind of mind.`,
-  yellow:`<strong>Based on your answers, you have the awareness level of a Brown belt.</strong> You operate through macro-vision and systems thinking.<br><br>
-You need to understand the <em>why</em> behind every technique before you can execute it. You get frustrated when the method lacks internal coherence. You see patterns where others see chaos.<br><br>
-On the mats: BJJ is the perfect language for your mind — human geometry, leverage, and continuous adaptation to your opponent's system.`,
+const EMAIL1_BODY: Record<DBC, string> = {
+  white: `<strong>Your diagnosis indicated that you are in the "Survival" stage.</strong> Your current stress has you putting out fires all day. You need to sharpen your instincts in an environment that provides you with 100% safety ("Safety/Security").`,
+  red:   `<strong>Your diagnosis revealed that you operate from "Challenge and Ego".</strong> Your internal engine is competition. You need an opponent — physical or conceptual — to perform at your best. Routine without challenge drains you.`,
+  blue:  `<strong>Your diagnosis revealed that you value "Authority and Order".</strong> You are in a stage where you need clear rules and proven systems so you don't waste your energy.`,
+  orange:`<strong>You are pure "Strategy and Achievement".</strong> Your competitive mind needs complex puzzles. For you, winning at the office is no longer enough; you need a physical challenge that matches your intellect.`,
+  green: `<strong>You are in the "Community and Synergy" stage.</strong> You value deep interpersonal relationships over stepping on others to win. You learn better through cooperation than cutthroat competition.`,
+  yellow:`<strong>Your mind operates with "Global Vision".</strong> You seek to transmit wisdom, flow with external chaos, and master excellence on a macro level.`,
 }
 
-function getEmail0Html(dbc: DBC, name: string): string {
+function getEmail1Html(dbc: DBC, name: string, email: string): string {
   const accentColor = BELT_HEX[dbc]
-  const body = EMAIL0_BODY[dbc]
+  const body = EMAIL1_BODY[dbc]
+
+  const appDomain = "https://camilosbjj.com.au"
+  const unsubscribeUrl = `${appDomain}/api/unsubscribe?email=${encodeURIComponent(email)}`
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -80,36 +71,32 @@ function getEmail0Html(dbc: DBC, name: string): string {
           <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;color:${accentColor === '#e5e7eb' ? '#6b7280' : accentColor};text-transform:uppercase;margin:0 0 16px;font-family:Arial,sans-serif;">
             CAMILO'S BJJ &middot; YOUR MINDSET FOR BJJ
           </p>
-          <h1 style="font-size:28px;font-weight:900;color:#111827;margin:0;font-family:Georgia,serif;line-height:1.2;">
-            Your results are in, ${name}
-          </h1>
         </td></tr>
 
         <!-- Body -->
         <tr><td style="padding:8px 48px 32px;font-size:16px;line-height:1.7;color:#374151;font-family:Georgia,serif;">
-          <p>You made 8 instinctive decisions. Each one revealed something about how your mind operates under pressure, how you learn, and what you need to grow.</p>
+          <p>Hi ${name},</p>
+          <p>Thank you for taking 60 seconds to complete our test. We promised to tell you what stage of mental evolution you are operating in today, and here it is.</p>
           <p>${body}</p>
           <p>
-            BJJ isn't just about sweating. It's a <strong>Personal Engineering Lab</strong> where you learn to use leverage — physical and mental — to overcome any obstacle.
+            <strong>BJJ isn't just about sweating. It's a Personal Engineering Lab.</strong>
           </p>
           <p>
-            The first step is your Diagnostic Session (45 minutes):
+            Every movement on the mats is designed to teach you how to use <em>leverage</em> instead of brute force. Exactly what you need to ascend to the next level of awareness in your life.
           </p>
-          <ul style="padding-left:20px;">
-            <li>15 min: Goals conversation + assessment.</li>
-            <li>30 min: Technical introduction adapted to your profile.</li>
-          </ul>
-          <p><em>Sweating on day one is optional.</em></p>
+          <p>
+            The first step is to create your 90-Day Roadmap, adapted to your current biotype (and without the risk of suffering injuries).
+          </p>
         </td></tr>
 
         <!-- CTA -->
         <tr><td style="padding:0 48px 40px;text-align:center;">
           <a href="https://wa.me/61489038711"
              style="display:inline-block;padding:16px 40px;background:#111827;color:#ffffff;text-decoration:none;border-radius:50px;font-size:15px;font-weight:700;letter-spacing:0.05em;font-family:Arial,sans-serif;">
-            Book My Free Diagnostic &rarr;
+            Claim my Free Week (Zero Contracts) &rarr;
           </a>
-          <p style="margin:16px 0 0;font-size:13px;color:#9ca3af;font-family:Arial,sans-serif;">
-            You don't need to be fit. You don't need experience. I'll handle the rest.
+          <p style="margin:24px 0 0;font-size:14px;color:#6b7280;font-style:italic;line-height:1.5;">
+            P.S. I know what you're thinking. "I'm not in shape for this". I promise you this: in your first class, we will NOT make you fight. It's just strategy, technique, and diagnosis. Zero pressure.
           </p>
         </td></tr>
 
@@ -117,11 +104,12 @@ function getEmail0Html(dbc: DBC, name: string): string {
         <tr><td style="padding:0 48px;"><hr style="border:none;border-top:1px solid #e5e7eb;margin:0;"></td></tr>
 
         <!-- Footer -->
-        <tr><td style="padding:24px 48px;text-align:center;font-size:13px;color:#9ca3af;font-family:Arial,sans-serif;">
+        <tr><td style="padding:24px 48px;text-align:center;font-size:12px;color:#9ca3af;font-family:Arial,sans-serif;line-height:1.5;">
           Camilo's BJJ &mdash; Docklands, Melbourne<br>
           <a href="https://www.instagram.com/camilosbjj/" style="color:#9ca3af;text-decoration:none;">@camilosbjj</a>
-          &nbsp;&middot;&nbsp;
-          No contract &middot; No lock-in &middot; Cancel anytime
+          <br><br>
+          No contract &middot; No lock-in &middot; Cancel anytime<br>
+          <a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Unsubscribe from these emails</a>
         </td></tr>
 
       </table>
@@ -228,11 +216,11 @@ Deno.serve(async (req: Request) => {
     console.error('leads upsert error (non-fatal):', leadsError)
   }
 
-  // 3. Send Email 0 via Resend — segmented by dominant_belt_color
+  // 3. Send Email 1 via Resend — segmented by dominant_belt_color
   const resendKey = Deno.env.get('RESEND_API_KEY')
   if (resendKey) {
-    const emailHtml = getEmail0Html(dbc, cleanName)
-    const subject = `${EMAIL0_SUBJECTS[dbc]}, ${cleanName}`
+    const emailHtml = getEmail1Html(dbc, cleanName, cleanEmail)
+    const subject = `${EMAIL1_SUBJECTS[dbc]}, ${cleanName} 🥋`
 
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -241,7 +229,7 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: "Camilo de Camilo's BJJ <onboarding@resend.dev>",
+        from: "Camilo de Camilo's BJJ <camilo.coach@camilosbjj.com.au>",
         to: [cleanEmail],
         subject,
         html: emailHtml,

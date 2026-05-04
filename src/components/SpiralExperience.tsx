@@ -109,9 +109,33 @@ const SCENES = [
   },
 ]
 
+// --- SHADER CONTROL PANEL TYPES ---
+interface PanelParams {
+  glowIntensity: number;
+  beamSpeed: number;
+  beamIntensity: number;
+  caOff: number;
+}
+
+const DEFAULT_PANEL: PanelParams = {
+  glowIntensity: 0.015,
+  beamSpeed: 0.35,
+  beamIntensity: 0.6,
+  caOff: 0.016,
+};
+
 // --- WEBGL SHADER COMPONENT ---
-function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
+function WebGLShader({ sceneIndex, panelParams }: { sceneIndex: number; panelParams: PanelParams }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const sceneRef = useRef<{
     scene: THREE.Scene | null
@@ -132,6 +156,12 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
     currentPendulum: 0,
     sceneIndex: 0,
   })
+
+  useEffect(() => {
+    if (sceneRef.current.uniforms) {
+      sceneRef.current.uniforms.u_isMobile.value = isMobile ? 1.0 : 0.0;
+    }
+  }, [isMobile])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -158,9 +188,18 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
       uniform float u_waveSpeed;
       uniform float u_turbulence;
       uniform float u_finalState;
+      uniform float u_glowIntensity;
+      uniform float u_caOff;
+      uniform float u_beamSpeed;
+      uniform float u_beamIntensity;
+      uniform float u_isMobile;
 
       void main() {
-        vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+        vec2 pOriginal = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+        vec2 p = pOriginal;
+        if (u_isMobile > 0.5) {
+          p = vec2(-pOriginal.y, pOriginal.x);
+        }
         float taper = mix(1.0, 1.0 + smoothstep(-1.0, 1.5, p.x) * 3.5, u_finalState);
         float noise = fract(sin(dot(p.xy + time, vec2(12.9898, 78.233))) * 43758.5453);
         float artifactOffset = smoothstep(0.95, 1.0, noise) * 0.05 * u_finalState;
@@ -172,18 +211,51 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
         float baseSine = sin(x * wFreq + tSpeed);
         float currentAmp = mix(u_waveAmp, 0.2 * taper, u_finalState);
         float waveBelt = (baseSine * currentAmp + turbulenceOffset) * taper;
-        float sdDistortion = sin(x * 15.0 + time * 3.0) * 0.025 * (0.5 + u_turbulence);
+        float sdDistortion = sin(x * 15.0 + time * 3.0) * 0.052 * (0.5 + u_turbulence);
         float waveSD = waveBelt + sdDistortion * (1.0 - u_finalState);
         float distBelt = abs(p.y - waveBelt);
         float distSD = abs(p.y - waveSD);
-        float sdThick = mix(0.018, 0.0, u_finalState);
-        vec3 sdGlow = u_sdColor * (sdThick / (distSD + 0.005)) * 0.7;
-        sdGlow += u_sdColor * smoothstep(0.08, 0.0, distSD) * 0.4;
-        float beltThick = mix(0.006, 0.02, u_finalState);
-        float beltAlpha = smoothstep(beltThick + 0.003, beltThick - 0.001, distBelt);
-        vec3 combinedColor = mix(sdGlow, u_beltColor, beltAlpha * (1.0 - u_finalState));
+        // Chromatic aberration offsets (controllable via panel)
+        float caOff = u_caOff * (1.0 - u_finalState);
+        float distSD_r = abs(p.y - (waveSD + caOff));
+        float distSD_b = abs(p.y - (waveSD - caOff));
+
+        // Soft wide glow — no hard edge. Primary: beltColor; accent: sdColor via CA channels.
+        vec3 combinedColor;
+        combinedColor.r = u_beltColor.r * (u_glowIntensity / (distSD_r + 0.004))
+                        + u_sdColor.r   * smoothstep(0.15, 0.0, distSD_r) * 0.4;
+        combinedColor.g = u_beltColor.g * (u_glowIntensity / (distSD   + 0.004))
+                        + u_sdColor.g   * smoothstep(0.15, 0.0, distSD)   * 0.4;
+        combinedColor.b = u_beltColor.b * (u_glowIntensity / (distSD_b + 0.004))
+                        + u_sdColor.b   * smoothstep(0.15, 0.0, distSD_b) * 0.4;
+
+        // Soft beltAlpha — only used in the finalState rendering path below
+        float beltAlpha = exp(-distBelt * 50.0);
+
+        // Outer halo — wide soft glow around the belt line
         float lum = dot(u_beltColor, vec3(0.299, 0.587, 0.114));
-        combinedColor += u_beltColor * (0.002 / (distBelt + 0.001)) * lum * (1.0 - u_finalState);
+        float outerHalo = (0.008 / (distBelt + 0.022)) * (1.0 - u_finalState);
+        combinedColor += u_beltColor * outerHalo;
+
+        // === LIGHT BEAMS ===
+        // 5 energy pulses that travel left→right along the wave (conduit effect).
+        vec3 beamResult = vec3(0.0);
+        for (int bi = 0; bi < 5; bi++) {
+          float bfi = float(bi);
+          float bh1 = fract(sin(bfi * 127.1)  * 43758.5453);
+          float bh2 = fract(sin(bfi * 311.7)  * 92364.370);
+          float bh3 = fract(sin(bfi * 57.29)  * 15731.930);
+          float speed  = u_beamSpeed * (0.5 + bh1 * 1.0);
+          float beamX  = fract(time * speed + bh2) * 4.0 - 2.0;
+          float bWidth = 0.06 + bh1 * 0.10;
+          float envX   = exp(-abs(p.x - beamX) / bWidth);
+          float waveAtBeam = sin(beamX * wFreq + tSpeed) * currentAmp;
+          float envY   = exp(-abs(p.y - waveAtBeam) * 14.0);
+          float beamBright = envX * envY * (0.5 + bh3 * 0.5);
+          vec3  beamColor  = mix(u_beltColor, u_sdColor, bh1 * 0.45);
+          beamResult += beamColor * beamBright;
+        }
+        combinedColor += beamResult * u_beamIntensity * (1.0 - u_finalState * 0.9);
         vec3 cWhite = vec3(1.0);
         vec3 cYellow = vec3(1.0, 0.85, 0.1);
         vec3 cTurq = vec3(0.0, 0.9, 1.0);
@@ -199,8 +271,46 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
         edgeFade = mix(edgeFade, smoothstep(2.5, -0.5, abs(p.x - 0.5)), u_finalState);
         float pendulumFocus = smoothstep(1.5, 0.0, abs(p.x - u_pendulum * 1.5));
         float glowMask = mix(pendulumFocus + 0.3, 1.0, u_finalState);
+
+        // === PARTICLE SYSTEM ===
+        // Grid-based particles that follow the wave and respond to turbulence.
+        // Low turbulence: aligned, gentle oscillation. High turbulence: chaotic scatter.
+        vec3 particleResult = vec3(0.0);
+        float CELL = 0.13;
+        for (float di = -1.0; di <= 1.0; di += 1.0) {
+          float col = floor(p.x / CELL) + di;
+          float h1 = fract(sin(col * 127.1) * 43758.5453);
+          float h2 = fract(sin(col * 311.7) * 92364.37);
+          float h3 = fract(sin(col * 57.29 + 3.7) * 15731.93);
+          // Particle x: anchored in column, slight lateral drift under chaos
+          float px = (col + h1 * 0.7 + 0.15) * CELL;
+          px += sin(time * 0.5 + h2 * 6.2832) * u_turbulence * 0.06;
+          // Wave y at particle x (no thrash — clean base position)
+          float waveAtPx = sin(px * wFreq + tSpeed) * currentAmp;
+          // Ordered: gentle breathing near the wave
+          float orderedOsc = sin(time * 1.8 + h3 * 6.2832) * 0.018;
+          // Chaotic: smooth interpolation between random positions (no hard jumps)
+          float chaosT = time * 0.55 + h1 * 10.0;
+          float chaosA = fract(sin(col * 57.3 + floor(chaosT))       * 43758.5) - 0.5;
+          float chaosB = fract(sin(col * 57.3 + floor(chaosT) + 1.0) * 43758.5) - 0.5;
+          float chaosOsc = mix(chaosA, chaosB, smoothstep(0.0, 1.0, fract(chaosT))) * 0.75;
+          // Final y: lerp between ordered and chaotic based on turbulence
+          float py = waveAtPx + mix(orderedOsc, chaosOsc, u_turbulence);
+          // Distance, size, brightness
+          float dist = length(p - vec2(px, py));
+          float sz = mix(0.003, 0.009, h2) * (1.0 + u_turbulence * 0.7);
+          float brightness = min(sz * sz / (dist * dist + 0.0007), 1.5);
+          // Color: mix between sd and belt colors per particle
+          vec3 pColor = mix(u_sdColor, u_beltColor, h3 * 0.45);
+          // Ordered particles are subtle; chaotic are more vivid
+          float opacity = mix(0.22, 0.88, u_turbulence * h1 + (1.0 - u_turbulence) * 0.15);
+          particleResult += pColor * brightness * opacity;
+        }
+        // Apply spatial masking; suppress on final state gradient scene
+        renderColor += particleResult * edgeFade * min(glowMask + 0.15, 1.0) * (1.0 - u_finalState * 0.85);
+
         renderColor *= edgeFade * glowMask;
-        float vignette = 1.0 - length(p * vec2(0.6, 1.0)) * mix(0.15, 0.25, u_finalState);
+        float vignette = 1.0 - length(pOriginal * vec2(0.6, 1.0)) * mix(0.15, 0.25, u_finalState);
         gl_FragColor = vec4(renderColor * vignette, 1.0);
       }
     `
@@ -223,6 +333,11 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
         u_waveSpeed: { value: SCENES[0].waveSpeed },
         u_turbulence: { value: SCENES[0].turbulence },
         u_finalState: { value: 0.0 },
+        u_glowIntensity: { value: DEFAULT_PANEL.glowIntensity },
+        u_caOff:         { value: DEFAULT_PANEL.caOff },
+        u_beamSpeed:     { value: DEFAULT_PANEL.beamSpeed },
+        u_beamIntensity: { value: DEFAULT_PANEL.beamIntensity },
+        u_isMobile:      { value: window.innerWidth < 768 ? 1.0 : 0.0 },
       }
 
       const positions = new THREE.BufferAttribute(
@@ -281,7 +396,8 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
       const height = window.innerHeight
       refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       refs.renderer.setSize(width, height, false)
-      refs.uniforms.resolution.value = [width, height]
+      // Use physical pixel dimensions so gl_FragCoord and resolution match on high-DPR screens
+      refs.uniforms.resolution.value = [canvas.width, canvas.height]
     }
 
     if (!refs.scene) {
@@ -304,12 +420,72 @@ function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
     sceneRef.current.sceneIndex = sceneIndex
   }, [sceneIndex])
 
+  useEffect(() => {
+    const u = sceneRef.current.uniforms;
+    if (!u) return;
+    u.u_glowIntensity.value = panelParams.glowIntensity;
+    u.u_caOff.value         = panelParams.caOff;
+    u.u_beamSpeed.value     = panelParams.beamSpeed;
+    u.u_beamIntensity.value = panelParams.beamIntensity;
+  }, [panelParams])
+
   return (
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full block z-0"
     />
   )
+}
+
+// --- SHADER CONTROL PANEL ---
+function ShaderControlPanel({
+  params,
+  onChange,
+}: {
+  params: PanelParams;
+  onChange: (p: Partial<PanelParams>) => void;
+}) {
+  const sliders: { key: keyof PanelParams; label: string; min: number; max: number; step: number }[] = [
+    { key: 'glowIntensity', label: 'Glow',              min: 0, max: 0.06, step: 0.001 },
+    { key: 'caOff',         label: 'Chrom. Aberration', min: 0, max: 0.05, step: 0.001 },
+    { key: 'beamSpeed',     label: 'Beam Speed',        min: 0, max: 2.0,  step: 0.05  },
+    { key: 'beamIntensity', label: 'Beam Intensity',    min: 0, max: 2.0,  step: 0.05  },
+  ];
+  return (
+    <div style={{
+      position: 'fixed', top: 16, right: 16, zIndex: 9999,
+      background: 'rgba(0,0,0,0.82)', padding: '14px 16px', borderRadius: 10,
+      color: '#fff', minWidth: 230, backdropFilter: 'blur(10px)',
+      fontFamily: 'monospace', fontSize: 10,
+    }}>
+      <div style={{ fontWeight: 700, marginBottom: 12, letterSpacing: 2 }}>SHADER CONTROLS</div>
+      {sliders.map(s => (
+        <div key={s.key} style={{ marginBottom: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+            <span>{s.label}</span>
+            <span style={{ color: '#aaa' }}>{params[s.key].toFixed(3)}</span>
+          </div>
+          <input
+            type="range"
+            min={s.min} max={s.max} step={s.step}
+            value={params[s.key]}
+            onChange={e => onChange({ [s.key]: parseFloat(e.target.value) })}
+            style={{ width: '100%', accentColor: '#fff' }}
+          />
+        </div>
+      ))}
+      <button
+        onClick={() => onChange(DEFAULT_PANEL)}
+        style={{
+          marginTop: 6, padding: '4px 10px', fontSize: 9, cursor: 'pointer',
+          background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+          color: '#fff', borderRadius: 4, letterSpacing: 1,
+        }}
+      >
+        RESET
+      </button>
+    </div>
+  );
 }
 
 // --- GLOW BUTTON ---
@@ -347,6 +523,7 @@ interface SpiralExperienceProps {
 
 export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperienceProps) {
   const [currentScene, setCurrentScene] = useState(0)
+  const [panelParams, setPanelParams] = useState<PanelParams>(DEFAULT_PANEL)
 
   // Reset scene when reopened
   useEffect(() => {
@@ -396,7 +573,10 @@ export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperie
           `}} />
 
           {/* WebGL Background */}
-          <WebGLShader sceneIndex={currentScene} />
+          <WebGLShader sceneIndex={currentScene} panelParams={panelParams} />
+
+          {/* Shader control panel (dev iteration tool) */}
+          <ShaderControlPanel params={panelParams} onChange={p => setPanelParams(prev => ({ ...prev, ...p }))} />
 
           {/* Pendulum markers */}
           <div
@@ -428,7 +608,10 @@ export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperie
             'absolute top-16 md:top-24 left-1/2 -translate-x-1/2 w-full max-w-3xl px-6 z-10 flex flex-col items-center pointer-events-none transition-all duration-700',
             'opacity-100'
           )}>
-            <div key={scene.id} className="animate-blind flex flex-col items-center w-full">
+            <div key={scene.id} className="animate-blind flex flex-col items-center w-full relative">
+              {/* Soft dark underlay for mobile readability when the wave passes behind */}
+              <div className="absolute inset-0 bg-black/50 blur-[30px] rounded-full -z-10 md:hidden scale-[1.2]"></div>
+
               <div
                 className={cn(
                   'w-16 h-[2px] mb-6 transition-colors duration-1000 shadow-[0_0_15px_currentColor]',
@@ -438,17 +621,17 @@ export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperie
               />
 
               {scene.belt && (
-                <div className="uppercase tracking-[0.3em] text-[10px] font-bold text-white/50 mb-3 text-center">
+                <div className="uppercase tracking-[0.3em] text-[10px] font-bold text-white/50 mb-3 text-center drop-shadow-md">
                   {scene.belt}
                 </div>
               )}
 
-              <h1 className="font-editorial mb-6 text-center text-4xl font-bold tracking-wide md:text-5xl transition-all leading-tight text-white/90">
+              <h1 className="font-editorial mb-6 text-center text-4xl font-bold tracking-wide md:text-5xl transition-all leading-tight text-white/90 drop-shadow-[0_4px_25px_rgba(0,0,0,1)]">
                 {scene.title}
               </h1>
 
               {scene.text && (
-                <p className="text-white/60 text-center text-sm md:text-base font-light leading-relaxed max-w-xl mx-auto">
+                <p className="text-white/80 text-center text-sm md:text-base font-medium leading-relaxed max-w-xl mx-auto drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]">
                   {scene.text}
                 </p>
               )}
