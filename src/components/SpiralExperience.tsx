@@ -109,15 +109,7 @@ const SCENES = [
   },
 ]
 
-// --- SHADER CONTROL PANEL TYPES ---
-interface PanelParams {
-  glowIntensity: number;
-  beamSpeed: number;
-  beamIntensity: number;
-  caOff: number;
-}
-
-const DEFAULT_PANEL: PanelParams = {
+const SHADER_DEFAULTS = {
   glowIntensity: 0.015,
   beamSpeed: 0.35,
   beamIntensity: 0.6,
@@ -125,7 +117,7 @@ const DEFAULT_PANEL: PanelParams = {
 };
 
 // --- WEBGL SHADER COMPONENT ---
-function WebGLShader({ sceneIndex, panelParams }: { sceneIndex: number; panelParams: PanelParams }) {
+function WebGLShader({ sceneIndex }: { sceneIndex: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [isMobile, setIsMobile] = useState(false)
@@ -333,10 +325,10 @@ function WebGLShader({ sceneIndex, panelParams }: { sceneIndex: number; panelPar
         u_waveSpeed: { value: SCENES[0].waveSpeed },
         u_turbulence: { value: SCENES[0].turbulence },
         u_finalState: { value: 0.0 },
-        u_glowIntensity: { value: DEFAULT_PANEL.glowIntensity },
-        u_caOff:         { value: DEFAULT_PANEL.caOff },
-        u_beamSpeed:     { value: DEFAULT_PANEL.beamSpeed },
-        u_beamIntensity: { value: DEFAULT_PANEL.beamIntensity },
+        u_glowIntensity: { value: SHADER_DEFAULTS.glowIntensity },
+        u_caOff:         { value: SHADER_DEFAULTS.caOff },
+        u_beamSpeed:     { value: SHADER_DEFAULTS.beamSpeed },
+        u_beamIntensity: { value: SHADER_DEFAULTS.beamIntensity },
         u_isMobile:      { value: window.innerWidth < 768 ? 1.0 : 0.0 },
       }
 
@@ -420,72 +412,12 @@ function WebGLShader({ sceneIndex, panelParams }: { sceneIndex: number; panelPar
     sceneRef.current.sceneIndex = sceneIndex
   }, [sceneIndex])
 
-  useEffect(() => {
-    const u = sceneRef.current.uniforms;
-    if (!u) return;
-    u.u_glowIntensity.value = panelParams.glowIntensity;
-    u.u_caOff.value         = panelParams.caOff;
-    u.u_beamSpeed.value     = panelParams.beamSpeed;
-    u.u_beamIntensity.value = panelParams.beamIntensity;
-  }, [panelParams])
-
   return (
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full block z-0"
     />
   )
-}
-
-// --- SHADER CONTROL PANEL ---
-function ShaderControlPanel({
-  params,
-  onChange,
-}: {
-  params: PanelParams;
-  onChange: (p: Partial<PanelParams>) => void;
-}) {
-  const sliders: { key: keyof PanelParams; label: string; min: number; max: number; step: number }[] = [
-    { key: 'glowIntensity', label: 'Glow',              min: 0, max: 0.06, step: 0.001 },
-    { key: 'caOff',         label: 'Chrom. Aberration', min: 0, max: 0.05, step: 0.001 },
-    { key: 'beamSpeed',     label: 'Beam Speed',        min: 0, max: 2.0,  step: 0.05  },
-    { key: 'beamIntensity', label: 'Beam Intensity',    min: 0, max: 2.0,  step: 0.05  },
-  ];
-  return (
-    <div style={{
-      position: 'fixed', top: 16, right: 16, zIndex: 9999,
-      background: 'rgba(0,0,0,0.82)', padding: '14px 16px', borderRadius: 10,
-      color: '#fff', minWidth: 230, backdropFilter: 'blur(10px)',
-      fontFamily: 'monospace', fontSize: 10,
-    }}>
-      <div style={{ fontWeight: 700, marginBottom: 12, letterSpacing: 2 }}>SHADER CONTROLS</div>
-      {sliders.map(s => (
-        <div key={s.key} style={{ marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-            <span>{s.label}</span>
-            <span style={{ color: '#aaa' }}>{params[s.key].toFixed(3)}</span>
-          </div>
-          <input
-            type="range"
-            min={s.min} max={s.max} step={s.step}
-            value={params[s.key]}
-            onChange={e => onChange({ [s.key]: parseFloat(e.target.value) })}
-            style={{ width: '100%', accentColor: '#fff' }}
-          />
-        </div>
-      ))}
-      <button
-        onClick={() => onChange(DEFAULT_PANEL)}
-        style={{
-          marginTop: 6, padding: '4px 10px', fontSize: 9, cursor: 'pointer',
-          background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-          color: '#fff', borderRadius: 4, letterSpacing: 1,
-        }}
-      >
-        RESET
-      </button>
-    </div>
-  );
 }
 
 // --- GLOW BUTTON ---
@@ -523,7 +455,6 @@ interface SpiralExperienceProps {
 
 export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperienceProps) {
   const [currentScene, setCurrentScene] = useState(0)
-  const [panelParams, setPanelParams] = useState<PanelParams>(DEFAULT_PANEL)
 
   // Reset scene when reopened
   useEffect(() => {
@@ -573,10 +504,7 @@ export function SpiralExperience({ isOpen, onClose, onBookTrial }: SpiralExperie
           `}} />
 
           {/* WebGL Background */}
-          <WebGLShader sceneIndex={currentScene} panelParams={panelParams} />
-
-          {/* Shader control panel (dev iteration tool) */}
-          <ShaderControlPanel params={panelParams} onChange={p => setPanelParams(prev => ({ ...prev, ...p }))} />
+          <WebGLShader sceneIndex={currentScene} />
 
           {/* Pendulum markers */}
           <div

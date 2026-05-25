@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import * as THREE from 'three';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView, type MotionValue } from 'framer-motion';
 import { Network, Menu, X } from 'lucide-react';
 import './index.css';
 import camiloImg from './assets/camilo.jpg';
@@ -158,6 +158,86 @@ function MindsetWaveButton({ onClick }: { onClick: (e: React.MouseEvent) => void
                 </motion.svg>
             </div>
         </motion.button>
+    );
+}
+
+function MetaSystemLaunchButton({
+    opacity,
+    disabled,
+}: {
+    opacity: MotionValue<number>;
+    disabled: boolean;
+}) {
+    const [isHovered, setIsHovered] = useState(false);
+    const [isLaunching, setIsLaunching] = useState(false);
+    const waveDuration = isHovered ? 1.1 : 2.4;
+    const waveRepeatDelay = isHovered ? 0.05 : 0.6;
+
+    const handleLaunch = () => {
+        if (isLaunching) return;
+        setIsLaunching(true);
+        window.setTimeout(() => {
+            window.location.href = 'https://app.camilosbjj.com.au/hoy';
+        }, 2000);
+    };
+
+    return (
+        <>
+            <motion.div
+                className="absolute left-1/2 top-[226px] md:top-[214px] z-20 -translate-x-1/2"
+                style={{ opacity, pointerEvents: disabled ? 'none' : 'auto' }}
+            >
+                <motion.button
+                    type="button"
+                    onClick={handleLaunch}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    className="relative h-[58px] w-[196px] overflow-hidden rounded-full border border-black bg-black text-white cursor-pointer select-none"
+                    animate={{ backgroundColor: '#000000' }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    aria-label="Open MetaSystem app"
+                >
+                    <motion.div
+                        className="absolute top-0 bottom-0 pointer-events-none"
+                        style={{
+                            width: '55%',
+                            background: isHovered
+                                ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 38%, rgba(255,255,255,0.24) 50%, rgba(255,255,255,0.08) 62%, transparent 100%)'
+                                : 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 38%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0.04) 62%, transparent 100%)',
+                            filter: 'blur(3px)',
+                            left: 0,
+                        }}
+                        animate={{ x: ['-60%', '160%'] }}
+                        transition={{ duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay }}
+                    />
+                    <span className="relative z-10 flex h-full flex-col items-center justify-center gap-0.5">
+                        <motion.span
+                            className="text-[15px] font-black tracking-[0.16em] uppercase leading-none"
+                            animate={{ skewX: [0, -0.9, 0.5, -0.2, 0] }}
+                            transition={{ duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay }}
+                        >
+                            MetaSystem
+                        </motion.span>
+                        <span className="text-[10px] font-bold tracking-[0.28em] uppercase text-white/70 leading-none">
+                            app
+                        </span>
+                    </span>
+                </motion.button>
+            </motion.div>
+
+            <AnimatePresence>
+                {isLaunching && (
+                    <motion.div
+                        className="fixed inset-0 z-[9999] bg-black pointer-events-auto"
+                        initial={{ clipPath: 'circle(0px at 50% 255px)', opacity: 1 }}
+                        animate={{ clipPath: 'circle(150vmax at 50% 255px)', opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                )}
+            </AnimatePresence>
+        </>
     );
 }
 
@@ -506,6 +586,7 @@ function App() {
 
   const headerBgOpacity = useTransform(scrollY, [0, 90], [0, 1]);
   const navOpacity = useTransform(scrollY, [40, 90], [0, 1]);
+  const metaSystemOpacity = useTransform(scrollY, [0, 45], [1, 0]);
 
   useEffect(() => {
     if (showKidsModal || showWomensModal || showTimetableModal || showSurveyModal || showSpiralExperience || showTrialModal) {
@@ -693,6 +774,8 @@ function App() {
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             />
 
+            <MetaSystemLaunchButton opacity={metaSystemOpacity} disabled={scrolled} />
+
             {/* Nav — fades in after scroll */}
             <motion.nav
                 className="hidden md:flex items-center gap-6 text-sm font-bold tracking-widest uppercase text-gray-900"
@@ -808,7 +891,12 @@ function App() {
         </header>
 
         {/* ── Hero Section ── */}
-        <AnimatedHero onSurveyOpen={() => setShowSurveyModal(true)} onSpiralOpen={() => setShowSpiralExperience(true)} onBookingOpen={() => setShowTrialModal(true)} />
+        <AnimatedHero
+            onSurveyOpen={() => setShowSurveyModal(true)}
+            onSpiralOpen={() => setShowSpiralExperience(true)}
+            onBookingOpen={() => setShowTrialModal(true)}
+            onTimetableOpen={() => setShowTimetableModal(true)}
+        />
 
         {/* ── Separator: Hero → Who We Help ── */}
         <div className="section-divider mx-8 md:mx-24" />

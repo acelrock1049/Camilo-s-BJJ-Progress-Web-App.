@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Network } from 'lucide-react';
+import { CalendarDays, Network } from 'lucide-react';
 import { TextRotate } from './ui/text-rotate';
 
 // ─────────────────────────────────────────────────────────────
@@ -25,6 +25,7 @@ interface AnimatedHeroProps {
     onSurveyOpen: () => void;
     onSpiralOpen: () => void;
     onBookingOpen: () => void;
+    onTimetableOpen: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -239,7 +240,7 @@ function EvolutionButton({ onClick }: { onClick: () => void }) {
 // ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────
-export function AnimatedHero({ onSurveyOpen, onSpiralOpen, onBookingOpen }: AnimatedHeroProps) {
+export function AnimatedHero({ onSurveyOpen, onSpiralOpen, onBookingOpen, onTimetableOpen }: AnimatedHeroProps) {
     const taglines = useMemo(() => [
         'Empower Your Life',
         'Flow Through The Chaos',
@@ -431,6 +432,21 @@ export function AnimatedHero({ onSurveyOpen, onSpiralOpen, onBookingOpen }: Anim
                         <WhatsAppIcon className="w-5 h-5 shrink-0 text-green-500" />
                         <span className="font-bold tracking-widest text-xs uppercase text-gray-800">
                             Ask on WhatsApp
+                        </span>
+                    </CtaButton>
+
+                    {/* Button 5 — Timetable */}
+                    <CtaButton
+                        onClick={onTimetableOpen}
+                        accentFrom="#f97316"
+                        accentTo="#eab308"
+                        glowColor="rgba(249,115,22,0.2)"
+                        borderActiveClass="border-orange-400/50"
+                        bgActiveClass="from-orange-500/8 to-yellow-400/8"
+                    >
+                        <CalendarDays className="w-5 h-5 shrink-0 text-orange-500" />
+                        <span className="font-bold tracking-widest text-xs uppercase text-gray-800">
+                            View Timetable
                         </span>
                     </CtaButton>
                 </motion.div>
