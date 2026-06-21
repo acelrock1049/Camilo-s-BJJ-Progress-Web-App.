@@ -13,9 +13,7 @@ import { WeeklyTimetable } from './components/WeeklyTimetable';
 import { TrialBookingModal } from './components/TrialBookingModal';
 import { FooterOld } from './components/FooterOld';
 import { AnimatedHero } from './components/AnimatedHero';
-import imgWomens from './assets/paula-camilo.jpeg';
-import imgSelfImprovement from './assets/self-improvement.jpg';
-import imgBjjKids from './assets/bjj-kids-banner.png';
+import AudienceAccordion from './components/AudienceAccordion';
 
 
 // ─────────────────────────────────────────────────────────────
@@ -80,78 +78,6 @@ function HolisticWaveButton({ onClick }: { onClick: () => void }) {
                     className="w-5 h-5 shrink-0"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     animate={{ color: isHovered ? '#ffffff' : '#eab308', x: isHovered ? 4 : 0 }}
-                    transition={{ type: 'spring', stiffness: 320, damping: 22 }}
-                >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </motion.svg>
-            </div>
-        </motion.button>
-    );
-}
-
-// ─────────────────────────────────────────────────────────────
-// MINDSET WAVE BUTTON — compact wave button for Who We Help card
-// ~25% of card width, yellow accent, opens SurveyModal
-// ─────────────────────────────────────────────────────────────
-function MindsetWaveButton({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
-    const [isHovered, setIsHovered] = useState(false);
-    const waveDuration = isHovered ? 1.1 : 2.4;
-    const waveRepeatDelay = isHovered ? 0.05 : 0.6;
-    return (
-        <motion.button
-            onClick={onClick}
-            className="relative mt-6 rounded-xl overflow-hidden cursor-pointer select-none border z-20"
-            style={{ alignSelf: 'flex-start' }}
-            animate={{
-                backgroundColor: isHovered ? '#0a0a0a' : '#ffffff',
-                borderColor: isHovered ? 'rgba(255,255,255,0.12)' : 'rgba(234,179,8,0.35)',
-                boxShadow: isHovered
-                    ? '0 8px 28px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.06)'
-                    : '0 4px 20px rgba(234,179,8,0.22), 0 2px 6px rgba(234,179,8,0.12)',
-            }}
-            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            whileTap={{ scale: 0.97 }}
-        >
-            {/* Energy wave band */}
-            <motion.div
-                className="absolute top-0 bottom-0 pointer-events-none"
-                style={{
-                    width: '55%',
-                    background: isHovered
-                        ? 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.09) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.09) 60%, transparent 100%)'
-                        : 'linear-gradient(90deg, transparent 0%, rgba(234,179,8,0.08) 40%, rgba(234,179,8,0.24) 50%, rgba(234,179,8,0.08) 60%, transparent 100%)',
-                    filter: 'blur(2px)',
-                    left: 0,
-                }}
-                animate={{ x: ['-60%', '160%'] }}
-                transition={{ duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay }}
-            />
-            {/* Accent bar — yellow */}
-            <div
-                className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
-                style={{ background: 'linear-gradient(to right, #eab308, #f59e0b)' }}
-            />
-            {/* Content */}
-            <div className="relative z-10 px-4 py-2.5 flex items-center gap-2">
-                <motion.span
-                    className="font-black tracking-widest text-[10px] uppercase whitespace-nowrap"
-                    animate={{
-                        color: isHovered ? '#ffffff' : '#111111',
-                        skewX: [0, -0.9, 0.5, -0.2, 0],
-                    }}
-                    transition={{
-                        color: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
-                        skewX: { duration: waveDuration, repeat: Infinity, ease: [0.4, 0, 0.6, 1], repeatDelay: waveRepeatDelay },
-                    }}
-                >
-                    Discover your mindset for BJJ
-                </motion.span>
-                <motion.svg
-                    className="w-3 h-3 shrink-0"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    animate={{ color: isHovered ? '#ffffff' : '#eab308', x: isHovered ? 3 : 0 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 22 }}
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -280,54 +206,6 @@ const BeltMandala = () => {
     );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WHO WE HELP CARDS
-// Glassmorphism aesthetic + Foundation-style Framer Motion interactions.
-// Animation triggers on every viewport entry (once: false) — works scroll up/down.
-// Active state controlled by React (not CSS :hover) for reliable touch support.
-// ─────────────────────────────────────────────────────────────────────────────
-const WHO_CARDS = [
-    {
-        title: "WOMEN'S TRAINING",
-        short: 'Empowerment, real self-defense & community.',
-        long: 'We know that taking the first step in martial arts can be intimidating. Discover the warrior within in a completely ego-free space with Paula and Camilo.',
-        hex: '#ec4899',
-        rgb: '236,72,153',
-        accentFrom: '#ec4899',
-        accentTo: '#f43f5e',
-        glowColor: 'rgba(236,72,153,0.3)',
-        borderActive: 'border-pink-400/50',
-        img: imgWomens,
-        action: 'womens' as const,
-    },
-    {
-        title: 'SELF-IMPROVEMENT SEEKERS',
-        short: 'Technique over brute force — the "Smart System".',
-        long: "You've read the books, you do the habits, but you need a physical crucible. Our curriculum is built on evolution: a progressive framework where every belt represents a new level of physical mastery and psychological growth.",
-        hex: '#eab308',
-        rgb: '234,179,8',
-        accentFrom: '#eab308',
-        accentTo: '#06b6d4',
-        glowColor: 'rgba(234,179,8,0.3)',
-        borderActive: 'border-yellow-400/50',
-        img: imgSelfImprovement,
-        action: 'expand' as const,
-    },
-    {
-        title: 'BJJ KIDS',
-        short: 'Building resilient leaders on the mats.',
-        long: "Forget traditional \"fight factories\". At Camilo's BJJ, children don't just learn technical self-defense; they learn vital skills for the real world.",
-        hex: '#16a34a',
-        rgb: '22,163,74',
-        accentFrom: '#16a34a',
-        accentTo: '#22c55e',
-        glowColor: 'rgba(22,163,74,0.3)',
-        borderActive: 'border-green-500/50',
-        img: imgBjjKids,
-        action: 'kids' as const,
-    },
-] as const;
-
 // ── Pricing card wrapper: desktop hover + mobile scroll-in glow ──
 function PricingGlowCard({
     children,
@@ -372,160 +250,6 @@ function PricingGlowCard({
     );
 }
 
-interface WhoWeHelpCardsProps {
-    expandedCard: number | null;
-    setExpandedCard: (v: number | null) => void;
-    onKidsModal: () => void;
-    onWomensModal: () => void;
-    onSpiralOpen: () => void;
-}
-
-function WhoWeHelpCards({ expandedCard, setExpandedCard, onKidsModal, onWomensModal, onSpiralOpen }: WhoWeHelpCardsProps) {
-    // Active card tracks hover (desktop) or tap (mobile)
-    const [activeCard, setActiveCard] = useState<number | null>(null);
-
-    const handleClick = (idx: number) => {
-        const card = WHO_CARDS[idx];
-        if (card.action === 'kids')    { onKidsModal();   return; }
-        if (card.action === 'womens')  { onWomensModal(); return; }
-        // expand
-        setExpandedCard(expandedCard === idx ? null : idx);
-        setActiveCard(idx);
-    };
-
-    return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
-            {WHO_CARDS.map((card, idx) => {
-                const isExpanded = expandedCard === idx && card.action === 'expand';
-                const isHovered  = activeCard === idx;
-                
-                // Illumination levels
-                // Base: 80% of original (0.3 -> 0.24 alpha)
-                // Hover: 130% of original (0.3 -> 0.39 alpha)
-                const glowAlpha = isHovered ? 0.39 : 0.24;
-                const imageOpacity = isHovered ? 0.70 : 0.45;
-                const borderAlpha = isHovered ? 0.5 : 0.25;
-
-                return (
-                    <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, y: 32 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, margin: '-60px' }}
-                        transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        animate={{ y: isHovered || isExpanded ? -8 : 0 }}
-                        className={`
-                            relative overflow-hidden rounded-3xl border cursor-pointer select-none
-                            bg-black/60 backdrop-blur-xl
-                            transition-[border-color,box-shadow,background-color] duration-400
-                        `}
-                        style={{
-                            borderColor: `rgba(${card.rgb}, ${borderAlpha})`,
-                            boxShadow: `0 24px 64px rgba(${card.rgb}, ${glowAlpha}), 0 0 0 1px rgba(${card.rgb}, ${glowAlpha * 0.5})`,
-                        }}
-                        onMouseEnter={() => setActiveCard(idx)}
-                        onMouseLeave={() => setActiveCard(null)}
-                        onClick={() => handleClick(idx)}
-                        whileTap={{ scale: 0.985 }}
-                    >
-                        {/* Background image — Always in color, but brightness varies */}
-                        <div
-                            className="absolute inset-0 bg-cover bg-center transition-all duration-500"
-                            style={{
-                                backgroundImage: `url('${card.img}')`,
-                                opacity: imageOpacity,
-                                filter: isHovered ? 'grayscale(0%) brightness(1.1)' : 'grayscale(0%) brightness(0.9)',
-                                mixBlendMode: 'luminosity',
-                            }}
-                        />
-
-                        {/* Color glow gradient — Always visible at different intensities */}
-                        <div
-                            className="absolute inset-0 pointer-events-none transition-opacity duration-500"
-                            style={{
-                                background: `linear-gradient(to top, rgba(${card.rgb}, 0.6), rgba(${card.rgb}, 0.2) 55%, transparent 85%)`,
-                                opacity: isHovered ? 1 : 0.7,
-                            }}
-                        />
-
-                        {/* Accent top bar — Always visible */}
-                        <div
-                            className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
-                            style={{
-                                background: `linear-gradient(to right, ${card.accentFrom}, ${card.accentTo})`,
-                                opacity: isHovered ? 1 : 0.6,
-                            }}
-                        />
-
-                        {/* Glassmorphism inner content */}
-                        <div className="relative z-10 p-8 md:p-10 flex flex-col justify-end min-h-[420px] md:min-h-[500px]">
-                            <motion.div
-                                animate={{ y: isExpanded ? 0 : 8 }}
-                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                                className="mt-auto"
-                            >
-                                <h3 className="text-2xl lg:text-3xl font-black tracking-tight text-white uppercase mb-3 leading-none drop-shadow-md">
-                                    {card.title}
-                                </h3>
-                                <p className={`text-white/85 font-light text-sm leading-relaxed drop-shadow-sm transition-all duration-400 ${isExpanded ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 mb-0'}`}>
-                                    {card.short}
-                                </p>
-
-                                {/* Expanded copy — smooth height transition */}
-                                <motion.div
-                                    initial={false}
-                                    animate={{ height: isExpanded ? 'auto' : 0, opacity: isExpanded ? 1 : 0 }}
-                                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                    className="overflow-hidden"
-                                >
-                                    <div className="w-8 h-0.5 bg-white/40 mb-4 mt-1" />
-                                    <p className="text-white/90 font-light leading-relaxed italic text-sm sm:text-base mb-5">
-                                        "{card.long}"
-                                    </p>
-                                    {card.action !== 'expand' && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (card.action === 'kids') {
-                                                    onKidsModal();
-                                                } else if (card.action === 'womens') {
-                                                    onWomensModal();
-                                                }
-                                            }}
-                                            className="px-6 py-3 bg-white text-gray-900 text-xs font-bold tracking-widest uppercase rounded-full flex items-center gap-2 shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                                        >
-                                            Join this track
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                            </svg>
-                                        </button>
-                                    )}
-                                </motion.div>
-
-                                {/* Wave button for Self Improvement Seekers → opens SpiralExperience */}
-                                {card.action === 'expand' && (
-                                    <MindsetWaveButton onClick={(e) => { e.stopPropagation(); onSpiralOpen(); }} />
-                                )}
-                            </motion.div>
-                        </div>
-
-                        {/* Tap indicator — always visible on mobile, fades on active */}
-                        <motion.div
-                            className="absolute top-5 right-5"
-                            animate={{ opacity: isHovered || isExpanded ? 0 : 0.2 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </motion.div>
-                    </motion.div>
-                );
-            })}
-        </div>
-    );
-}
-
 // ─── Scroll Progress Bar ──────────────────────────────────────────────────────
 
 function ScrollProgressBar() {
@@ -547,13 +271,11 @@ function ScrollProgressBar() {
 
 function App() {
   const mountRef = useRef<HTMLDivElement>(null);
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
-  const [showKidsModal, setShowKidsModal] = useState(false);
-  const [showWomensModal, setShowWomensModal] = useState(false);
   const [showTimetableModal, setShowTimetableModal] = useState(false);
   const [showSurveyModal, setShowSurveyModal] = useState(false);
   const [showSpiralExperience, setShowSpiralExperience] = useState(false);
   const [showTrialModal, setShowTrialModal] = useState(false);
+  const [trialInterest, setTrialInterest] = useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // ── Scroll-aware header / logo ──
@@ -589,12 +311,12 @@ function App() {
   const metaSystemOpacity = useTransform(scrollY, [0, 45], [1, 0]);
 
   useEffect(() => {
-    if (showKidsModal || showWomensModal || showTimetableModal || showSurveyModal || showSpiralExperience || showTrialModal) {
+    if (showTimetableModal || showSurveyModal || showSpiralExperience || showTrialModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [showKidsModal, showWomensModal, showTimetableModal, showSurveyModal, showSpiralExperience, showTrialModal]);
+  }, [showTimetableModal, showSurveyModal, showSpiralExperience, showTrialModal]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -940,12 +662,9 @@ function App() {
                     We know you're searching for real personal change. Whether you spend 10 hours a day in front of a screen, want to empower your team, or wish to instil unbreakable discipline in your kids — we do things differently.
                 </motion.p>
 
-                {/* Interactive Cards — glassmorphism + Foundation-style animations */}
-                <WhoWeHelpCards
-                    expandedCard={expandedCard}
-                    setExpandedCard={setExpandedCard}
-                    onKidsModal={() => setShowKidsModal(true)}
-                    onWomensModal={() => setShowWomensModal(true)}
+                {/* Audience accordion — peer teasers + inline expanding panels (Kids full, Adults/Women lighter) */}
+                <AudienceAccordion
+                    onBookTrial={(interest) => { setTrialInterest(interest); setShowTrialModal(true); }}
                     onSpiralOpen={() => setShowSpiralExperience(true)}
                 />
             </div>
@@ -1437,12 +1156,10 @@ function App() {
 
         {/* Modals Overlay */}
         <AnimatePresence>
-            {showKidsModal && <KidsModal isOpen={showKidsModal} onClose={() => setShowKidsModal(false)} />}
-            {showWomensModal && <WomensModal isOpen={showWomensModal} onClose={() => setShowWomensModal(false)} />}
             {showTimetableModal && <TimetableModal isOpen={showTimetableModal} onClose={() => setShowTimetableModal(false)} onBookTrial={() => { setShowTimetableModal(false); setShowTrialModal(true); }} />}
         </AnimatePresence>
 
-        <TrialBookingModal isOpen={showTrialModal} onClose={() => setShowTrialModal(false)} />
+        <TrialBookingModal isOpen={showTrialModal} onClose={() => { setShowTrialModal(false); setTrialInterest(''); }} defaultInterest={trialInterest} />
 
         <SurveyModal isOpen={showSurveyModal} onClose={() => setShowSurveyModal(false)} />
 
@@ -1455,262 +1172,6 @@ function App() {
     </div>
   );
 }
-
-const KidsModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-    useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6">
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.18 }}
-                className="absolute inset-0 bg-black/55 backdrop-blur-sm cursor-pointer"
-                onClick={onClose}
-            />
-            <motion.div
-                initial={{ opacity: 0, scale: 0.93, y: 18 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.97, y: 8 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.8 }}
-                className="relative w-full max-w-5xl z-10 rounded-3xl shadow-2xl overflow-hidden"
-                style={{ maxHeight: '92vh' }}
-            >
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 z-50 p-2 bg-black/25 hover:bg-black/45 backdrop-blur-md text-white rounded-full border border-white/20 transition-all"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-
-                {/* Scrollable inner — isolated scroll, no overflow on animated element */}
-                <div className="modal-scroll overflow-y-auto overscroll-contain bg-white flex flex-col" style={{ maxHeight: '92vh' }}>
-
-                    {/* Header image */}
-                    <div className="relative w-full h-44 md:h-52 bg-green-900 shrink-0">
-                        <img src={imgBjjKids} alt="BJJ Kids Training" className="w-full h-full object-cover opacity-80" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-green-950/95 via-green-900/40 to-transparent" />
-                        <div className="absolute bottom-5 left-6 md:left-8 text-white">
-                            <span className="inline-block px-3 py-1 bg-green-500/75 backdrop-blur-sm rounded-full text-[10px] font-bold tracking-widest uppercase mb-2">
-                                BJJ Development Programme
-                            </span>
-                            <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tighter leading-none drop-shadow-lg">BJJ Kids</h2>
-                            <p className="font-serif italic text-green-100 text-base drop-shadow">Building resilient leaders on the mats.</p>
-                        </div>
-                    </div>
-
-                    {/* Content — 2-col grid on desktop */}
-                    <div className="p-5 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 text-gray-800">
-
-                        {/* LEFT col */}
-                        <div className="flex flex-col gap-5">
-                            <div className="border-l-4 border-green-500 pl-5 py-1">
-                                <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-1.5">Our Philosophy — The Why</h3>
-                                <p className="text-sm font-light text-gray-700 leading-relaxed">
-                                    <strong className="text-gray-900">Play is the vehicle.</strong> We translate Jiu-Jitsu into the language of children through stories and challenges: navigating{' '}
-                                    <strong className="text-green-600">The Floor is Lava</strong>, protecting <strong className="text-green-600">The Guard Rock</strong>, or escaping <strong className="text-green-600">The Mount Island</strong>.
-                                </p>
-                            </div>
-
-                            <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
-                                <h3 className="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-4">Emotional Development</h3>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="bg-gray-900 rounded-full px-2 py-1.5 flex gap-2 shadow-lg border-2 border-gray-800 shrink-0">
-                                        <div className="w-6 h-6 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.7)]" />
-                                        <div className="w-6 h-6 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.7)]" />
-                                        <div className="w-6 h-6 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.7)]" />
-                                    </div>
-                                    <p className="text-xs text-gray-500 italic leading-snug">"Losing is learning — from survival to a focussed, secure state of mind."</p>
-                                </div>
-                                <div className="space-y-2.5">
-                                    {[
-                                        { color: 'bg-red-500',    label: 'Survival (Red)',    desc: 'Fight, flight, or freeze under stress.' },
-                                        { color: 'bg-yellow-400', label: 'Emotion (Yellow)',  desc: 'Frustration or excitement — need for connection.' },
-                                        { color: 'bg-green-500',  label: 'Learning (Green)', desc: 'Focussed, secure, ready to solve problems.' },
-                                    ].map(({ color, label, desc }) => (
-                                        <div key={label} className="flex gap-3 items-start">
-                                            <div className={`mt-1 w-2.5 h-2.5 rounded-full ${color} shrink-0`} />
-                                            <div>
-                                                <strong className="text-gray-900 text-xs block">{label}</strong>
-                                                <span className="text-xs text-gray-500">{desc}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* RIGHT col — Class Anatomy */}
-                        <div className="bg-gray-900 rounded-2xl p-6 text-white relative overflow-hidden flex flex-col">
-                            <div className="absolute top-0 right-0 w-48 h-48 bg-green-500/15 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-                            <div className="relative z-10 flex-1">
-                                <h3 className="text-[10px] font-bold text-green-400 tracking-widest uppercase mb-1">A clear structure for learning</h3>
-                                <h4 className="text-lg font-black uppercase tracking-tight mb-5">Anatomy of a Class</h4>
-                                <div className="space-y-4">
-                                    {[
-                                        { n: '01', title: 'Connection & Animal Movements', desc: 'Physical literacy and group cohesion.' },
-                                        { n: '02', title: 'Thematic Skill Games',          desc: 'Complex techniques as fun, objective-based challenges.' },
-                                        { n: '03', title: 'Exploration — Safe Starting Points', desc: 'Controlled, playful sparring scenarios.' },
-                                        { n: '04', title: 'Reflection & Cool Down',         desc: 'Breathing and lessons from the mat.' },
-                                    ].map(({ n, title, desc }) => (
-                                        <div key={n} className="flex gap-3 items-start border-b border-gray-800/70 pb-3 last:border-0 last:pb-0">
-                                            <span className="text-green-500/60 font-black text-xs w-5 shrink-0 mt-0.5">{n}</span>
-                                            <div>
-                                                <h5 className="font-bold text-green-100 text-sm leading-snug mb-0.5">{title}</h5>
-                                                <p className="text-gray-400 text-xs font-light">{desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            <button className="relative z-10 mt-6 w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl text-white font-bold uppercase tracking-widest text-xs shadow-lg shadow-green-900/40 transition-all hover:scale-[1.02]">
-                                Schedule a Free Diagnostics Class
-                            </button>
-                        </div>
-                    </div>
-
-                    <p className="text-center text-gray-400 text-xs italic pb-6 px-8">We start with a friendly session. No pressure, just connection.</p>
-                </div>
-            </motion.div>
-        </div>
-    );
-};
-
-const WomensModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-    useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 md:p-6">
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.18 }}
-                className="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"
-                onClick={onClose}
-            />
-            <motion.div
-                initial={{ opacity: 0, scale: 0.93, y: 18 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.97, y: 8 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.8 }}
-                className="relative w-full max-w-5xl z-10 rounded-[2rem] shadow-2xl overflow-hidden ring-1 ring-black/5"
-                style={{ maxHeight: '92vh' }}
-            >
-                <button
-                    onClick={onClose}
-                    className="absolute top-5 right-5 z-50 p-2 bg-gray-100/60 hover:bg-gray-100 backdrop-blur-md text-gray-900 rounded-full border border-gray-200 transition-all"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-
-                {/* Scrollable inner */}
-                <div className="modal-scroll overflow-y-auto overscroll-contain bg-white" style={{ maxHeight: '92vh' }}>
-                    <div className="px-6 pb-8 md:px-10 md:pb-12 pt-10 md:pt-12">
-
-                        {/* Header */}
-                        <div className="mb-8">
-                            <span className="inline-block px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-500 text-xs font-bold tracking-widest uppercase mb-5 border border-pink-500/20">
-                                Your Safe Space
-                            </span>
-                            <h3 className="text-3xl md:text-5xl font-black text-gray-900 italic capitalize mb-5 leading-tight">
-                                Awaken your strength.<br />Train without fear.
-                            </h3>
-                            <p className="text-gray-600 font-light text-base md:text-lg leading-relaxed max-w-3xl border-l-[3px] border-pink-500/50 pl-5 py-1">
-                                "We've created an environment where you can lower your emotional guard so you can raise your physical one. Guided by Paula and Camilo — a completely ego-free space."
-                            </p>
-                        </div>
-
-                        {/* Content grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-
-                            {/* Left: Image */}
-                            <div className="lg:col-span-5 relative w-full aspect-[4/5] rounded-2xl overflow-hidden">
-                                <div className="absolute inset-0 bg-pink-900/20 mix-blend-overlay z-10" />
-                                <img src={imgWomens} alt="Paula and Camilo coaching" className="w-full h-full object-cover" />
-                                <div className="absolute bottom-4 left-4 right-4 bg-white/85 backdrop-blur-xl border border-gray-200 p-4 rounded-xl z-20 shadow-xl">
-                                    <div className="flex gap-0.5 mb-2 text-yellow-500 text-sm">{'⭐'.repeat(5)}</div>
-                                    <p className="text-gray-900 font-medium italic text-sm leading-snug mb-2">
-                                        "The environment is safe for women to pick up self defence skills in a supportive and respectful community."
-                                    </p>
-                                    <p className="text-pink-600 text-[11px] font-bold tracking-widest uppercase">
-                                        Nat. <span className="text-gray-400 px-1">|</span> Docklands Resident
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Right: Pillars */}
-                            <div className="lg:col-span-7">
-                                <div className="space-y-4">
-                                    {[
-                                        {
-                                            d: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
-                                            title: 'Empathetic Leadership',
-                                            desc: 'Train under Paula and Camilo. A female and male presence guarantees absolute respect and careful technical instruction.',
-                                        },
-                                        {
-                                            d: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-                                            title: 'Unshakeable Confidence',
-                                            desc: 'Learn real self-defense and biomechanics. Move through the world knowing exactly how to protect yourself.',
-                                        },
-                                        {
-                                            d: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
-                                            title: 'Warrior Community',
-                                            desc: 'More than a gym — a tribe. Build genuine friendships with women who actively support each other becoming their best selves.',
-                                        },
-                                    ].map(({ d, title, desc }) => (
-                                        <div key={title} className="flex gap-4 items-start p-4 rounded-xl border border-gray-100 bg-gray-50/50">
-                                            <div className="shrink-0 w-10 h-10 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-pink-500">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={d} />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-base font-bold text-gray-900 mb-1">{title}</h4>
-                                                <p className="text-gray-600 text-sm leading-relaxed font-light">{desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-stretch gap-3">
-                                    <button className="flex-1 px-6 py-4 bg-gray-900 text-white font-bold tracking-widest text-xs uppercase hover:bg-black transition-colors rounded-lg shadow-lg">
-                                        Claim Your 1-Week Free Trial
-                                    </button>
-                                    <a
-                                        href="https://wa.me/61489038711"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex-1 px-6 py-4 bg-transparent text-gray-900 border border-gray-200 font-bold tracking-widest text-xs uppercase hover:bg-gray-50 hover:border-pink-400/60 hover:text-pink-600 transition-all rounded-lg flex justify-center items-center gap-2"
-                                    >
-                                        Chat with Paula
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </motion.div>
-        </div>
-    );
-};
 
 const FAQItem = ({ question, answer, color }: { question: string, answer: string, color: string }) => {
     const [isOpen, setIsOpen] = useState(false);

@@ -87,9 +87,10 @@ function redirigirWhatsApp(datos: LeadData): void {
 export interface TrialBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultInterest?: string;
 }
 
-export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
+export function TrialBookingModal({ isOpen, onClose, defaultInterest }: TrialBookingModalProps) {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [nivel, setNivel] = useState('');
@@ -106,7 +107,7 @@ export function TrialBookingModal({ isOpen, onClose }: TrialBookingModalProps) {
       setNombre('');
       setEmail('');
       setNivel('');
-      setObjetivo('');
+      setObjetivo(defaultInterest ?? '');
       setBotField('');
       setError('');
       setLoading(false);
