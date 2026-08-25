@@ -13,6 +13,19 @@ const CORS_HEADERS = {
 type DBC = 'white' | 'red' | 'blue' | 'orange' | 'green' | 'yellow'
 const VALID_COLORS: DBC[] = ['white', 'red', 'blue', 'orange', 'green', 'yellow']
 
+/** One answer as chosen by the respondent. Mirrors the shape sent by SurveyModal. */
+interface RecordedAnswer {
+  order: number
+  question_id: string
+  question_text: string
+  answer_id: string
+  answer_text: string
+  color: DBC
+}
+
+/** Where the coach notification goes. Set as a secret so it isn't baked into the repo. */
+const COACH_NOTIFY_TO = Deno.env.get('COACH_NOTIFY_TO') ?? ''
+
 // ─────────────────────────────────────────────────────────────────────────────
 // EMAIL 0 — Segmented by Dominant Belt Color
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,6 +55,85 @@ const EMAIL1_BODY: Record<DBC, string> = {
   orange:`<strong>You are pure "Strategy and Achievement".</strong> Your competitive mind needs complex puzzles. For you, winning at the office is no longer enough; you need a physical challenge that matches your intellect.`,
   green: `<strong>You are in the "Community and Synergy" stage.</strong> You value deep interpersonal relationships over stepping on others to win. You learn better through cooperation than cutthroat competition.`,
   yellow:`<strong>Your mind operates with "Global Vision".</strong> You seek to transmit wisdom, flow with external chaos, and master excellence on a macro level.`,
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COACH NOTIFICATION — the internal copy, with every answer the person gave
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Respondent-supplied text goes into HTML, so escape it. */
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function getCoachNotificationHtml(
+  name: string,
+  email: string,
+  dbc: DBC,
+  answers: RecordedAnswer[] | null
+): string {
+  const accent = BELT_HEX[dbc]
+
+  const answersHtml = answers && answers.length > 0
+    ? answers
+        .slice()
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((a) => `
+          <tr>
+            <td style="padding:14px 0;border-bottom:1px solid #eee;">
+              <div style="font-size:13px;color:#666;margin-bottom:6px;">${esc(a.question_text ?? '')}</div>
+              <div style="font-size:15px;color:#111;font-weight:600;">
+                <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${BELT_HEX[a.color] ?? '#999'};margin-right:8px;"></span>
+                ${esc(a.answer_text ?? '')}
+              </div>
+            </td>
+          </tr>`)
+        .join('')
+    : `<tr><td style="padding:14px 0;color:#888;font-size:14px;">
+         (Sin detalle de respuestas — registro anterior a la captura individual.)
+       </td></tr>`
+
+  return `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:24px;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;">
+    <div style="height:5px;background:${accent};"></div>
+    <div style="padding:28px;">
+      <p style="margin:0 0 4px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#999;">
+        Nueva encuesta completada
+      </p>
+      <h1 style="margin:0 0 18px;font-size:24px;color:#111;">${esc(name)}</h1>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:22px;">
+        <tr>
+          <td style="padding:6px 0;font-size:14px;color:#666;width:120px;">Email</td>
+          <td style="padding:6px 0;font-size:14px;color:#111;">
+            <a href="mailto:${esc(email)}" style="color:#111;">${esc(email)}</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:14px;color:#666;">Perfil</td>
+          <td style="padding:6px 0;font-size:14px;color:#111;font-weight:600;text-transform:uppercase;">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${accent};margin-right:8px;"></span>${esc(dbc)}
+          </td>
+        </tr>
+      </table>
+
+      <p style="margin:0 0 4px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#999;">
+        Respuestas
+      </p>
+      <table style="width:100%;border-collapse:collapse;">${answersHtml}</table>
+
+      <p style="margin:24px 0 0;font-size:13px;color:#888;">
+        Responde a este correo para escribirle directamente.
+      </p>
+    </div>
+  </div>
+</body></html>`
 }
 
 function getEmail1Html(dbc: DBC, name: string, email: string): string {
@@ -141,6 +233,7 @@ Deno.serve(async (req: Request) => {
     email?: unknown
     dominant_belt_color?: unknown
     scores?: unknown
+    answers?: unknown
     survey_completed_at?: unknown
   }
   try {
@@ -152,7 +245,7 @@ Deno.serve(async (req: Request) => {
     })
   }
 
-  const { name, email, dominant_belt_color, scores, survey_completed_at } = body
+  const { name, email, dominant_belt_color, scores, answers, survey_completed_at } = body
 
   // Validate required fields
   if (!name || typeof name !== 'string' || !name.trim()) {
@@ -177,6 +270,11 @@ Deno.serve(async (req: Request) => {
   const cleanEmail = (email as string).toLowerCase().trim()
   const cleanName = (name as string).trim()
   const dbc = dominant_belt_color as DBC
+  // Older clients don't send `answers`; store null rather than an empty array so
+  // "never captured" stays distinguishable from "answered nothing".
+  const cleanAnswers = Array.isArray(answers) && answers.length > 0
+    ? (answers as RecordedAnswer[])
+    : null
 
   // Initialize Supabase with service role — bypasses RLS
   const supabase = createClient(
@@ -192,6 +290,7 @@ Deno.serve(async (req: Request) => {
       email: cleanEmail,
       dominant_belt_color: dbc,
       scores: scores ?? {},
+      answers: cleanAnswers,
       survey_completed_at: survey_completed_at ?? new Date().toISOString(),
     })
 
@@ -242,6 +341,32 @@ Deno.serve(async (req: Request) => {
     }
   } else {
     console.warn('RESEND_API_KEY not set — skipping Email 0 send')
+  }
+
+  // 4. Notify the coach — without this the results only ever reach the database.
+  //    Non-fatal: a failure here must never cost us the lead.
+  if (resendKey && COACH_NOTIFY_TO) {
+    try {
+      const notifyRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: "Camilo's BJJ <camilo.coach@camilosbjj.com.au>",
+          to: [COACH_NOTIFY_TO],
+          reply_to: cleanEmail,
+          subject: `Nueva encuesta: ${cleanName} — ${dbc.toUpperCase()}`,
+          html: getCoachNotificationHtml(cleanName, cleanEmail, dbc, cleanAnswers),
+        }),
+      })
+      if (!notifyRes.ok) {
+        console.error('Resend error (coach notification):', await notifyRes.text())
+      }
+    } catch (err) {
+      console.error('Coach notification failed:', err)
+    }
   }
 
   return new Response(JSON.stringify({ success: true }), {

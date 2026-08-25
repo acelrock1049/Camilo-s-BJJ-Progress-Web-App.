@@ -3,6 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { surveyQuestions, type SdColor } from '../data/surveyQuestions';
 
 type Question = (typeof surveyQuestions)[number];
+type QuestionAnswer = Question['answers'][number];
+
+/** One answer as chosen by the respondent, in the order the question was asked. */
+interface RecordedAnswer {
+  order: number;
+  question_id: string;
+  question_text: string;
+  answer_id: string;
+  answer_text: string;
+  color: SdColor;
+}
 
 /* ── WebGL2 Belt Wave Canvas ── */
 const VERT_SRC = `#version 300 es
@@ -142,6 +153,8 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
     yellow: 0
   });
 
+  const [answers, setAnswers] = useState<RecordedAnswer[]>([]);
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -155,6 +168,7 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
       setShuffledQuestions(shuffleQuestions(surveyQuestions));
       setStep(0);
       setScores({ white: 0, red: 0, blue: 0, orange: 0, green: 0, yellow: 0 });
+      setAnswers([]);
       setEmail('');
       setName('');
       setLeadSubmitted(false);
@@ -177,9 +191,23 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
 
   if (!isOpen) return null;
 
-  const handleAnswer = (color: SdColor) => {
+  const handleAnswer = (question: Question, answer: QuestionAnswer) => {
+    const color = answer.color;
     const newScores = { ...scores, [color]: scores[color] + 1 };
     setScores(newScores);
+    // Keep the full choice, not just its colour — the scores alone can't be
+    // traced back to what the person actually picked.
+    setAnswers(prev => [
+      ...prev,
+      {
+        order: step,
+        question_id: question.id,
+        question_text: question.text,
+        answer_id: answer.id,
+        answer_text: answer.text,
+        color,
+      },
+    ]);
     // After last question, go to reveal animation before results
     if (step === surveyQuestions.length) {
       setStep(9);
@@ -218,6 +246,7 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
           email: email.toLowerCase().trim(),
           dominant_belt_color: dominantBeltColor,
           scores,
+          answers,
           survey_completed_at: new Date().toISOString(),
         }),
       });
@@ -324,7 +353,7 @@ export const SurveyModal: React.FC<SurveyModalProps> = ({ isOpen, onClose }) => 
               transition={{ delay: 0.05 + i * 0.06, duration: 0.35 }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              onClick={() => handleAnswer(ans.color)}
+              onClick={() => handleAnswer(question, ans)}
               className="w-full text-left p-4 md:p-5 bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl shadow-sm hover:shadow-md transition-all group"
             >
               <div className="flex items-start gap-4">
