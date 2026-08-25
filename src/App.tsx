@@ -14,6 +14,7 @@ import { TrialBookingModal } from './components/TrialBookingModal';
 import { FooterOld } from './components/FooterOld';
 import { AnimatedHero } from './components/AnimatedHero';
 import AudienceAccordion from './components/AudienceAccordion';
+import { TestimonialsSection } from './components/TestimonialsSection';
 
 
 // ─────────────────────────────────────────────────────────────
@@ -808,7 +809,13 @@ function App() {
 
 
 
-        {/* ── Separator: Method → Pricing ── */}
+        {/* ── Separator: Method → Testimonials ── */}
+        <div className="section-divider mx-8 md:mx-24" />
+
+        {/* ── Testimonials (Social Proof) ── */}
+        <TestimonialsSection onBookTrial={() => setShowTrialModal(true)} />
+
+        {/* ── Separator: Testimonials → Pricing ── */}
         <div className="section-divider mx-8 md:mx-24" />
 
         {/* ── Pricing & CTA Section ── */}
