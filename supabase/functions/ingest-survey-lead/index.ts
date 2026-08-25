@@ -23,9 +23,6 @@ interface RecordedAnswer {
   color: DBC
 }
 
-/** Where the coach notification goes. Set as a secret so it isn't baked into the repo. */
-const COACH_NOTIFY_TO = Deno.env.get('COACH_NOTIFY_TO') ?? ''
-
 // ─────────────────────────────────────────────────────────────────────────────
 // EMAIL 0 — Segmented by Dominant Belt Color
 // ─────────────────────────────────────────────────────────────────────────────
@@ -345,7 +342,10 @@ Deno.serve(async (req: Request) => {
 
   // 4. Notify the coach — without this the results only ever reach the database.
   //    Non-fatal: a failure here must never cost us the lead.
-  if (resendKey && COACH_NOTIFY_TO) {
+  // Read inside the handler, not at module load, so a secret added after this
+  // version was deployed is picked up without a redeploy.
+  const coachNotifyTo = Deno.env.get('COACH_NOTIFY_TO') ?? ''
+  if (resendKey && coachNotifyTo) {
     try {
       const notifyRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -355,7 +355,7 @@ Deno.serve(async (req: Request) => {
         },
         body: JSON.stringify({
           from: "Camilo's BJJ <camilo.coach@camilosbjj.com.au>",
-          to: [COACH_NOTIFY_TO],
+          to: [coachNotifyTo],
           reply_to: cleanEmail,
           subject: `Nueva encuesta: ${cleanName} — ${dbc.toUpperCase()}`,
           html: getCoachNotificationHtml(cleanName, cleanEmail, dbc, cleanAnswers),
