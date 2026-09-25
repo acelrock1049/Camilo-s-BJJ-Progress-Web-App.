@@ -2,11 +2,12 @@
  * AudienceAccordion — balanced, inline-expanding audience selector.
  *
  * Replaces the old "card → modal" pattern that left Kids dominating the page.
- * Three peer teasers (Kids / Adults / Women), permanent and equal. Clicking one
- * expands its rich content INLINE on the same page (one at a time, accordion).
+ * Four peer teasers (Kids / Adults / Women / Private), permanent and equal.
+ * Clicking one expands its rich content INLINE on the same page (one at a time).
  *
- *  - Kids  → full panel (KidsSection), the campaign lead.
- *  - Adults / Women → lighter panels for now (enriched in phase 2).
+ *  - Kids   → full panel (KidsSection), the campaign lead.
+ *  - Adults → full panel (AdultsSection).
+ *  - Women / Private → lighter panels.
  *
  * Deep dives reuse existing pieces: onOpenMethod (KidsModal), onSpiralOpen
  * (SpiralExperience), onWomensModal. Booking reuses TrialBookingModal via onBookTrial.
@@ -18,6 +19,7 @@ import imgSelfImprovement from '../assets/self-improvement.jpg';
 import imgBjjKids from '../assets/bjj-kids-banner.jpg';
 import imgPrivate from '../assets/camilo-coach.jpeg';
 import KidsSection from './KidsSection';
+import AdultsSection from './AdultsSection';
 import WomensPanel from './WomensPanel';
 
 type Audience = 'kids' | 'adults' | 'women' | 'private';
@@ -100,15 +102,7 @@ export default function AudienceAccordion({ onBookTrial, onSpiralOpen, onRequest
               <KidsSection onBookTrial={() => onBookTrial('Kids BJJ')} />
             )}
             {selected === 'adults' && (
-              <LightPanel
-                accentFrom="#eab308" accentTo="#06b6d4"
-                eyebrow="Adults · Self-Improvement"
-                title="Technique over brute force."
-                body="A real, demanding challenge in a safe, ego-free space. The curriculum is built on progression: every belt is a new level of physical mastery and mental growth. This is where intelligence defeats size."
-                points={['A real challenge, in a safe environment', 'Technique and problem-solving over strength', 'Small groups, direct coaching', 'Beginner-friendly, never beginner-easy']}
-                primaryLabel="Book a free trial" onPrimary={() => onBookTrial('Adult BJJ')}
-                secondaryLabel="Explore the method" onSecondary={onSpiralOpen}
-              />
+              <AdultsSection onBookTrial={() => onBookTrial('Adult BJJ')} onExploreMethod={onSpiralOpen} />
             )}
             {selected === 'women' && (
               <WomensPanel onBookTrial={() => onBookTrial("Women's Training")} />
@@ -181,39 +175,6 @@ function PrivatePanel({ onRequest }: { onRequest: () => void }) {
             Request a private session
           </button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function LightPanel({ accentFrom, accentTo, eyebrow, title, body, points, primaryLabel, onPrimary, secondaryLabel, onSecondary }: {
-  accentFrom: string; accentTo: string; eyebrow: string; title: string; body: string;
-  points: string[]; primaryLabel: string; onPrimary: () => void; secondaryLabel: string; onSecondary: () => void;
-}) {
-  return (
-    <div className="bg-gray-900 text-white px-6 md:px-12 lg:px-20 py-16 md:py-20">
-      <div className="max-w-5xl mx-auto">
-        <div className="h-[3px] w-16 rounded-full mb-6" style={{ background: `linear-gradient(to right, ${accentFrom}, ${accentTo})` }} />
-        <div className="text-[11px] font-bold tracking-[0.28em] uppercase mb-3" style={{ color: accentFrom }}>{eyebrow}</div>
-        <h3 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tighter">{title}</h3>
-        <p className="mt-5 max-w-2xl text-gray-300 font-light leading-relaxed">{body}</p>
-        <ul className="mt-7 grid sm:grid-cols-2 gap-3 max-w-2xl">
-          {points.map((p) => (
-            <li key={p} className="flex gap-3 text-gray-200">
-              <span className="mt-2 w-2 h-2 rounded-full shrink-0" style={{ background: accentFrom }} />
-              <span>{p}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-9 flex flex-col sm:flex-row gap-4">
-          <button onClick={onPrimary} className="px-8 py-4 text-gray-900 text-sm font-black uppercase tracking-widest rounded-full transition-transform hover:scale-[1.03]" style={{ background: accentFrom }}>
-            {primaryLabel}
-          </button>
-          <button onClick={onSecondary} className="px-8 py-4 bg-white/10 text-white text-sm font-bold uppercase tracking-widest rounded-full border border-white/20 hover:bg-white/20 transition-colors">
-            {secondaryLabel}
-          </button>
-        </div>
-        <p className="mt-6 text-xs text-gray-500 italic">More for this program is coming in the next phase.</p>
       </div>
     </div>
   );
