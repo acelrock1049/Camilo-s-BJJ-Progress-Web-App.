@@ -16,14 +16,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import imgWomens from '../assets/paula-camilo.jpeg';
 import imgSelfImprovement from '../assets/self-improvement.jpg';
 import imgBjjKids from '../assets/bjj-kids-banner.jpg';
+import imgPrivate from '../assets/camilo-coach.jpeg';
 import KidsSection from './KidsSection';
 import WomensPanel from './WomensPanel';
 
-type Audience = 'kids' | 'adults' | 'women';
+type Audience = 'kids' | 'adults' | 'women' | 'private';
 
 interface AudienceAccordionProps {
   onBookTrial: (interest: string) => void;
   onSpiralOpen: () => void;
+  onRequestPrivate: () => void;
 }
 
 const TEASERS: {
@@ -33,16 +35,17 @@ const TEASERS: {
   { id: 'kids',   title: 'BJJ Kids',                short: 'Confidence and real skills, the safe way. Ages 5 to 10.',          img: imgBjjKids,         rgb: '22,163,74',  from: '#16a34a', to: '#22c55e' },
   { id: 'adults', title: 'Adults · Self-Improvement', short: 'Technique over brute force. A real challenge, in a safe space.', img: imgSelfImprovement, rgb: '234,179,8',  from: '#eab308', to: '#06b6d4' },
   { id: 'women',  title: "Women's Training",        short: 'Empowerment, real self-defence and community.',                   img: imgWomens,          rgb: '236,72,153', from: '#ec4899', to: '#f43f5e' },
+  { id: 'private', title: 'Private Coaching',       short: '1-on-1 BJJ or MMA. At the academy or at your home.',              img: imgPrivate,         rgb: '245,158,11', from: '#f59e0b', to: '#d97706' },
 ];
 
-export default function AudienceAccordion({ onBookTrial, onSpiralOpen }: AudienceAccordionProps) {
+export default function AudienceAccordion({ onBookTrial, onSpiralOpen, onRequestPrivate }: AudienceAccordionProps) {
   const [selected, setSelected] = useState<Audience | null>(null);
   const toggle = (a: Audience) => setSelected((prev) => (prev === a ? null : a));
 
   return (
     <div className="w-full">
       {/* ── Permanent peer teasers ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
         {TEASERS.map((t, idx) => {
           const active = selected === t.id;
           return (
@@ -110,9 +113,75 @@ export default function AudienceAccordion({ onBookTrial, onSpiralOpen }: Audienc
             {selected === 'women' && (
               <WomensPanel onBookTrial={() => onBookTrial("Women's Training")} />
             )}
+            {selected === 'private' && (
+              <PrivatePanel onRequest={onRequestPrivate} />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/** Private coaching: two formats side by side, so the price difference reads at a glance. */
+function PrivatePanel({ onRequest }: { onRequest: () => void }) {
+  const formats = [
+    {
+      eyebrow: 'At the academy',
+      price: '$45',
+      unit: '/hour',
+      body: 'Full mats, full equipment, Docklands. Schedule on request.',
+    },
+    {
+      eyebrow: 'At your home',
+      price: 'On request',
+      unit: '',
+      body: 'We come to you. Priced by location — tell us your suburb.',
+    },
+  ];
+
+  return (
+    <div className="bg-gray-900 text-white px-6 md:px-12 lg:px-20 py-16 md:py-20">
+      <div className="max-w-5xl mx-auto">
+        <div className="h-[3px] w-16 rounded-full mb-6" style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)' }} />
+        <div className="text-[11px] font-bold tracking-[0.28em] uppercase mb-3 text-amber-500">Private Coaching · 1-on-1</div>
+        <h3 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tighter">Your session. Your pace.</h3>
+        <p className="mt-5 max-w-2xl text-gray-300 font-light leading-relaxed">
+          Personal training in BJJ or MMA, built around you: your goals, your level, your timetable.
+          The fastest way to progress — every minute of the session is yours.
+        </p>
+
+        <ul className="mt-7 grid sm:grid-cols-2 gap-3 max-w-2xl">
+          {['BJJ or MMA', 'Any level, any age', 'Solo, with a partner or with your kids', 'Times agreed with you'].map((p) => (
+            <li key={p} className="flex gap-3 text-gray-200">
+              <span className="mt-2 w-2 h-2 rounded-full shrink-0 bg-amber-500" />
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl">
+          {formats.map((f) => (
+            <div key={f.eyebrow} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <div className="text-[11px] font-bold tracking-[0.22em] uppercase text-amber-500">{f.eyebrow}</div>
+              <div className="mt-3 flex items-baseline gap-1">
+                <span className="text-3xl font-black tracking-tighter">{f.price}</span>
+                {f.unit && <span className="text-gray-400 font-medium">{f.unit}</span>}
+              </div>
+              <p className="mt-3 text-sm text-gray-400 font-light leading-relaxed">{f.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-9">
+          <button
+            onClick={onRequest}
+            className="px-8 py-4 text-gray-900 text-sm font-black uppercase tracking-widest rounded-full transition-transform hover:scale-[1.03] bg-amber-500"
+          >
+            Request a private session
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

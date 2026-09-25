@@ -11,6 +11,7 @@ import { BookSection } from './components/BookSection';
 import { FoundationSection } from './components/FoundationSection';
 import { WeeklyTimetable } from './components/WeeklyTimetable';
 import { TrialBookingModal } from './components/TrialBookingModal';
+import { PrivateRequestModal } from './components/PrivateRequestModal';
 import { FooterOld } from './components/FooterOld';
 import { AnimatedHero } from './components/AnimatedHero';
 import AudienceAccordion from './components/AudienceAccordion';
@@ -277,6 +278,7 @@ function App() {
   const [showSpiralExperience, setShowSpiralExperience] = useState(false);
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [trialInterest, setTrialInterest] = useState('');
+  const [showPrivateModal, setShowPrivateModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // ── Scroll-aware header / logo ──
@@ -312,12 +314,12 @@ function App() {
   const metaSystemOpacity = useTransform(scrollY, [0, 45], [1, 0]);
 
   useEffect(() => {
-    if (showTimetableModal || showSurveyModal || showSpiralExperience || showTrialModal) {
+    if (showTimetableModal || showSurveyModal || showSpiralExperience || showTrialModal || showPrivateModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [showTimetableModal, showSurveyModal, showSpiralExperience, showTrialModal]);
+  }, [showTimetableModal, showSurveyModal, showSpiralExperience, showTrialModal, showPrivateModal]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -667,6 +669,7 @@ function App() {
                 <AudienceAccordion
                     onBookTrial={(interest) => { setTrialInterest(interest); setShowTrialModal(true); }}
                     onSpiralOpen={() => setShowSpiralExperience(true)}
+                    onRequestPrivate={() => setShowPrivateModal(true)}
                 />
             </div>
         </section>
@@ -967,12 +970,12 @@ function App() {
                             <div className="flex flex-col md:flex-row md:items-baseline gap-2 mb-4">
                                 <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter group-hover:text-amber-600 transition-colors">The Elite</h3>
                                 <div className="flex items-baseline gap-1 text-gray-900 justify-center">
-                                    <span className="text-4xl font-black tracking-tighter">$89</span>
-                                    <span className="text-gray-500 font-medium lowercase">/week</span>
+                                    <span className="text-4xl font-black tracking-tighter">$45</span>
+                                    <span className="text-gray-500 font-medium lowercase">/hour</span>
                                 </div>
                             </div>
                             <div className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2">
-                                {['By Request', 'Professional Coaching', 'Roadmap', 'System BJJ'].map((tag) => (
+                                {['1-on-1 Personal Training', 'BJJ or MMA', 'Schedule on Request', 'Home sessions on request'].map((tag) => (
                                     <span key={tag} className="flex items-center gap-2 text-xs font-bold text-gray-600 uppercase tracking-widest">
                                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                         {tag}
@@ -982,9 +985,9 @@ function App() {
                         </div>
                         
                         <div className="shrink-0 w-full md:w-auto">
-                            <a href="https://link.bizly.pro/payment-link/697ad50d6503cac371772f7d" target="_blank" rel="noopener noreferrer" className="block w-full md:w-auto py-5 px-12 text-center text-white bg-gray-900 rounded-sm font-bold tracking-widest uppercase text-sm hover:bg-black hover:scale-105 transition-all shadow-xl">
-                                Apply Now
-                            </a>
+                            <button type="button" onClick={() => setShowPrivateModal(true)} className="block w-full md:w-auto py-5 px-12 text-center text-white bg-gray-900 rounded-sm font-bold tracking-widest uppercase text-sm hover:bg-black hover:scale-105 transition-all shadow-xl">
+                                Request a Session
+                            </button>
                         </div>
                     </PricingGlowCard>
                 </div>
@@ -1167,6 +1170,7 @@ function App() {
         </AnimatePresence>
 
         <TrialBookingModal isOpen={showTrialModal} onClose={() => { setShowTrialModal(false); setTrialInterest(''); }} defaultInterest={trialInterest} />
+        <PrivateRequestModal isOpen={showPrivateModal} onClose={() => setShowPrivateModal(false)} />
 
         <SurveyModal isOpen={showSurveyModal} onClose={() => setShowSurveyModal(false)} />
 
