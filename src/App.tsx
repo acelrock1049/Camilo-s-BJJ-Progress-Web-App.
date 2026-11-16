@@ -1120,17 +1120,16 @@ function App() {
                         transition={{ duration: 0.5, delay: 0.35 }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
                     >
-                        <a
-                            href="https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            type="button"
+                            onClick={() => setShowTrialModal(true)}
                             className="group inline-flex items-center gap-3 px-10 py-5 bg-gray-900 text-white font-black tracking-widest text-sm uppercase rounded-sm shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:bg-black hover:shadow-[0_0_50px_rgba(249,115,22,0.3)] hover:scale-105 transition-all duration-300"
                         >
                             <span>Claim your free trial class</span>
                             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
-                        </a>
+                        </button>
 
                         <button
                             onClick={() => setShowTrialModal(true)}

@@ -35,7 +35,7 @@ const PROGRAMS = [
     { label: 'Warrior Unlimited — $69/week', href: 'https://link.bizly.pro/payment-link/697ad4c06503ca2033772f26' },
     { label: 'Elite Coaching — $89/week', href: 'https://link.bizly.pro/payment-link/697ad50d6503cac371772f7d' },
     { label: 'BJJ Kids Programme', href: 'https://link.bizly.pro/payment-link/697ad59277ba09f413ce0e89' },
-    { label: 'Free Trial Class', href: 'https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce' },
+    { label: 'Free Trial Class', href: 'https://wa.me/61489038711' },
 ];
 
 const COMMUNITY = [
