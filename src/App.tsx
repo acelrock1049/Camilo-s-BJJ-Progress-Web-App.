@@ -871,7 +871,7 @@ function App() {
                             <li className="flex items-center gap-3"><svg className="w-5 h-5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> Zero lock-in contracts</li>
                             <li className="flex items-center gap-3"><svg className="w-5 h-5 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg> 90-Day Roadmap included</li>
                         </ul>
-                        <a href="https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce" target="_blank" rel="noopener noreferrer" className="relative z-10 block w-full py-4 px-6 text-center text-gray-900 bg-transparent border-2 border-gray-900 rounded-sm font-bold tracking-widest uppercase text-xs hover:bg-gray-900 hover:text-white transition-all mt-auto shadow-sm">
+                        <a href="https://pay.gocardless.com/BRT0004AWCX23X4" target="_blank" rel="noopener noreferrer" className="relative z-10 block w-full py-4 px-6 text-center text-gray-900 bg-transparent border-2 border-gray-900 rounded-sm font-bold tracking-widest uppercase text-xs hover:bg-gray-900 hover:text-white transition-all mt-auto shadow-sm">
                             Get Started
                         </a>
                     </PricingGlowCard>

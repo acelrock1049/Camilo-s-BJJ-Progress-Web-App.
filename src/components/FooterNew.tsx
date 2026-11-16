@@ -31,7 +31,7 @@ const MapPinIcon = () => (
 // ─── Data ─────────────────────────────────────────────────────
 
 const PROGRAMS = [
-    { label: 'Foundation — $49/week', href: 'https://link.bizly.pro/payment-link/697ad46b77ba091443ce0cce' },
+    { label: 'Foundation — $49/week', href: 'https://pay.gocardless.com/BRT0004AWCX23X4' },
     { label: 'Warrior Unlimited — $69/week', href: 'https://link.bizly.pro/payment-link/697ad4c06503ca2033772f26' },
     { label: 'Elite Coaching — $89/week', href: 'https://link.bizly.pro/payment-link/697ad50d6503cac371772f7d' },
     { label: 'BJJ Kids Programme', href: 'https://link.bizly.pro/payment-link/697ad59277ba09f413ce0e89' },
